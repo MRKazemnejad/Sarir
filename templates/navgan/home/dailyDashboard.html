@@ -852,213 +852,300 @@
                 });
             }
 
-            document.querySelectorAll('.toggleAvg').forEach(cb => {
-                cb.addEventListener('change', function () {
-                    const chart = charts[this.dataset.target];
+                {#function buildSmallChart(id, thisYear, lastYear, days) {#}
+                {#    const ctx = document.getElementById(id);#}
+                {#    if (!ctx) return;#}
+                {##}
+                {#    const isEfficiency = id === 'efficiencyChart';  // فقط برای بهره‌وری درصد نداشته باشه#}
+                {##}
+                {#    charts[id] = new Chart(ctx, {#}
+                {#        type: 'line',#}
+                {#        plugins: [chartAreaBG],#}
+                {#        data: {#}
+                {#            labels: days,#}
+                {#            datasets: [#}
+                {#                      {#}
+                {#                label: 'امسال',#}
+                {#                data: thisYear,#}
+                {#                borderColor: '#546e7a',#}
+                {#                backgroundColor: '#546e7a',#}
+                {#                borderWidth: 3,#}
+                {#                tension: 0.35,#}
+                {#                pointRadius: 4,#}
+                {#                pointHoverRadius: 6,#}
+                {#                pointBorderWidth: 2,#}
+                {#                pointBackgroundColor: '#ffffff',#}
+                {#                pointBorderColor: '#546e7a'#}
+                {#            },#}
+                {#            {#}
+                {#                label: 'سال قبل',#}
+                {#                data: lastYear,#}
+                {#                borderColor: '#f3b21a',#}
+                {#                backgroundColor: '#f3b21a',#}
+                {#                borderWidth: 2,#}
+                {#                tension: 0.35,#}
+                {#                pointRadius: 4,#}
+                {#                pointHoverRadius: 6,#}
+                {#                pointBorderWidth: 2,#}
+                {#                pointBackgroundColor: '#ffffff',#}
+                {#                pointBorderColor: '#f3b21a'#}
+                {#            }#}
+                {#            ]#}
+                {#        },#}
+                {#        options: {#}
+                {#            responsive: true,#}
+                {#            maintainAspectRatio: false,#}
+                {#            interaction: {#}
+                {#                mode: 'index',#}
+                {#                intersect: false#}
+                {#            },#}
+                {#            plugins: {#}
+                {#                legend: {display: false},#}
+                {#                tooltip: {#}
+                {#                    callbacks: {#}
+                {#                        label: (ctx) => {#}
+                {#                            const value = Math.round(ctx.parsed.y);#}
+                {#                            return ctx.dataset.label + " : " + value + (isEfficiency ? "" : " %");#}
+                {#                        }#}
+                {#                    }#}
+                {#                },#}
+                {#                chartAreaBG: {color: '#dcefed'}#}
+                {#            },#}
+                {#            scales: {#}
+                {#                x: {#}
+                {#                    ticks: {#}
+                {#                        padding: 20,#}
+                {#                        callback: (v, i) => days[i] % 2 === 1 ? days[i] : "",#}
+                {#                        maxRotation: 45,#}
+                {#                        minRotation: 45#}
+                {#                    },#}
+                {#                    grid: {color: 'rgba(0,0,0,0.08)'}#}
+                {#                },#}
+                {#                y: {#}
+                {#                    ticks: {#}
+                {#                        callback: (v) => {#}
+                {#                            const rounded = Math.round(v);#}
+                {#                            return isEfficiency ? rounded : rounded + " %";#}
+                {#                        }#}
+                {#                    },#}
+                {#                    grid: {color: 'rgba(0,0,0,0.08)'}#}
+                {#                }#}
+                {#            }#}
+                {#        }#}
+                {#    });#}
+                {#}#}
+
+                document.querySelectorAll('.toggleAvg').forEach(cb => {
+                    cb.addEventListener('change', function () {
+                        const chart = charts[this.dataset.target];
+                        if (!chart) return;
+                        const index = this.dataset.series === "thisYear" ? 0 : 1;
+                        chart.data.datasets[index].hidden = !this.checked;
+                        chart.update();
+                    });
+                });
+                document.addEventListener("click", function (e) {
+                    const item = e.target.closest(".legend-item");
+                    if (!item) return;
+                    const chartId = item.dataset.chart;
+                    const datasetIndex = parseInt(item.dataset.index);
+                    const chart = charts[chartId];
                     if (!chart) return;
-                    const index = this.dataset.series === "thisYear" ? 0 : 1;
-                    chart.data.datasets[index].hidden = !this.checked;
+                    const meta = chart.getDatasetMeta(datasetIndex);
+                    meta.hidden = meta.hidden === null
+                        ? !chart.data.datasets[datasetIndex].hidden
+                        : null;
+                    item.classList.toggle("off");
                     chart.update();
                 });
-            });
-            document.addEventListener("click", function (e) {
-                const item = e.target.closest(".legend-item");
-                if (!item) return;
-                const chartId = item.dataset.chart;
-                const datasetIndex = parseInt(item.dataset.index);
-                const chart = charts[chartId];
-                if (!chart) return;
-                const meta = chart.getDatasetMeta(datasetIndex);
-                meta.hidden = meta.hidden === null
-                    ? !chart.data.datasets[datasetIndex].hidden
-                    : null;
-                item.classList.toggle("off");
-                chart.update();
-            });
 
-            // تابع آپدیت نمودار میله‌ای Apex
-            function updateBarChart(barData) {
-                if (barChartInstance) {
-                    barChartInstance.updateOptions({
-                        xaxis: {categories: barData.loco_name},
-                        series: barData.regions.map(r => ({name: r.name, data: r.data})),
-                        colors: barData.regions.map(r => regionColors[r.code] || '#775DD0'),
-                        yaxis: {max: barData.max_number}
+                // تابع آپدیت نمودار میله‌ای Apex
+                function updateBarChart(barData) {
+                    if (barChartInstance) {
+                        barChartInstance.updateOptions({
+                            xaxis: {categories: barData.loco_name},
+                            series: barData.regions.map(r => ({name: r.name, data: r.data})),
+                            colors: barData.regions.map(r => regionColors[r.code] || '#775DD0'),
+                            yaxis: {max: barData.max_number}
+                        });
+                    } else {
+                        console.warn("نمودار Apex هنوز ساخته نشده - دوباره می‌سازیم");
+                        buildBarChart(barData);
+                    }
+                }
+
+                // تابع آپدیت نمودارهای خطی Chart.js
+                function updateLineCharts(lineData) {
+                    const days = lineData.days;
+                    // main chart
+                    if (charts.mainChart) {
+                        charts.mainChart.data.labels = days;
+                        charts.mainChart.data.datasets[0].data = lineData.pure.this;
+                        charts.mainChart.data.datasets[1].data = lineData.pure.last;
+                        charts.mainChart.update();
+                    }
+                    // سه نمودار کوچک
+                    const smallMap = {
+                        efficiencyChart: 'eff',
+                        availabilityChart: 'ava',
+                        confidenceChart: 'conf'
+                    };
+                    Object.keys(smallMap).forEach(id => {
+                        const chart = charts[id];
+                        const key = smallMap[id];
+                        if (chart) {
+                            chart.data.labels = days;
+                            chart.data.datasets[0].data = lineData[key].this;
+                            chart.data.datasets[1].data = lineData[key].last;
+                            chart.update();
+                        }
                     });
-                } else {
-                    console.warn("نمودار Apex هنوز ساخته نشده - دوباره می‌سازیم");
-                    buildBarChart(barData);
+                    // آپدیت legendها (سال جاری و پارسال)
+                    buildLegend("mainChart", lineData.last_year, lineData.year);
+                    buildLegend("efficiencyChart", lineData.last_year, lineData.year);
+                    buildLegend("availabilityChart", lineData.last_year, lineData.year);
+                    buildLegend("confidenceChart", lineData.last_year, lineData.year);
                 }
-            }
 
-            // تابع آپدیت نمودارهای خطی Chart.js
-            function updateLineCharts(lineData) {
-                const days = lineData.days;
-                // main chart
-                if (charts.mainChart) {
-                    charts.mainChart.data.labels = days;
-                    charts.mainChart.data.datasets[0].data = lineData.pure.this;
-                    charts.mainChart.data.datasets[1].data = lineData.pure.last;
-                    charts.mainChart.update();
-                }
-                // سه نمودار کوچک
-                const smallMap = {
-                    efficiencyChart: 'eff',
-                    availabilityChart: 'ava',
-                    confidenceChart: 'conf'
-                };
-                Object.keys(smallMap).forEach(id => {
-                    const chart = charts[id];
-                    const key = smallMap[id];
-                    if (chart) {
-                        chart.data.labels = days;
-                        chart.data.datasets[0].data = lineData[key].this;
-                        chart.data.datasets[1].data = lineData[key].last;
-                        chart.update();
+                document.getElementById('btnSearch').addEventListener('click', async function () {
+                    const dateInput = document.querySelector('.top-filter-date').value.trim();
+                    if (!dateInput || !/^\d{4}\/\d{2}\/\d{2}$/.test(dateInput)) {
+                        showAlert('تاریخ نامعتبر', 'فرمت: ۱۴۰۴/۰۵/۲۲', 'warning');
+                        return;
+                    }
+                    Swal.fire({
+                        title: 'در حال بارگذاری...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+                    try {
+                        const url = `/get-dashboard-data/?date=${encodeURIComponent(dateInput)}`;
+                        console.log("درخواست:", url);
+                        const response = await fetch(url);
+                        console.log("وضعیت:", response.status);
+                        if (!response.ok) {
+                            const text = await response.text();
+                            throw new Error(`سرور: ${response.status} → ${text.slice(0, 200)}`);
+                        }
+                        const data = await response.json();
+                        console.log("داده دریافتی:", data);
+                        // ────────────────────────────────
+                        // آپدیت کارت‌های بالا
+                        // ────────────────────────────────
+                        document.getElementById('stat-puretonkilo').innerHTML =
+                            `تن کیلومتر خالص<br>${Math.round(data.cards.puretonkilo).toLocaleString('fa-IR')}`;
+                        document.getElementById('stat-loadedtonkilo').innerHTML =
+                            `تن کیلومتر باردار<br>${Math.round(data.cards.loadedtonkilo).toLocaleString('fa-IR')}`;
+                        document.getElementById('stat-confidence').innerHTML =
+                            `ضریب اطمینان<br>%${Math.round(data.cards.confidence_factor)}`;
+                        document.getElementById('stat-availability').innerHTML =
+                            `آماده‌کاری<br>%${Math.round(data.cards.availability)}`;
+                        document.getElementById('stat-efficiency').innerHTML =
+                            `بهره وری<br>${Math.round(data.cards.efficiency).toLocaleString('fa-IR')}`;
+                        // ────────────────────────────────
+                        // آپدیت میانگین تن کیلومتر پایین نمودار اصلی
+                        // ────────────────────────────────
+                        document.getElementById('avg-last-year-tonkilo').textContent =
+                            Math.round(data.averages.last_avg_tonkilo).toLocaleString('fa-IR');
+                        document.getElementById('avg-this-year-tonkilo').textContent =
+                            Math.round(data.averages.current_avg_tonkilo).toLocaleString('fa-IR');
+                        // ────────────────────────────────
+                        // آپدیت مقادیر کوچک پایین کارت‌ها
+                        // ────────────────────────────────
+                        document.getElementById('eff-last-year').textContent = Math.round(data.averages.eff_last_year);
+                        document.getElementById('eff-this-month').textContent = Math.round(data.averages.eff_this_month);
+                        document.getElementById('ava-last-year').textContent = Math.round(data.averages.avail_last_year);
+                        document.getElementById('ava-this-month').textContent = Math.round(data.averages.avail_this_month);
+                        document.getElementById('conf-last-year').textContent = Math.round(data.averages.conf_last_year);
+                        document.getElementById('conf-this-month').textContent = Math.round(data.averages.conf_this_month);
+                        // آپدیت عنوان
+                        document.querySelector('.top-filter-title').textContent = data.selected_date;
+                        // آپدیت نمودارها
+                        if (data.bar) updateBarChart(data.bar);
+                        if (data.line) updateLineCharts(data.line);
+                        Swal.close();
+                        showAlert('با موفقیت بارگذاری شد', `داده‌های ${data.selected_date} نمایش داده شد`, 'success', 2200);
+                    } catch (err) {
+                        Swal.close();
+                        console.error("خطا:", err);
+                        showAlert('خطا', `جزئیات: ${err.message}<br>کنسول رو چک کن`, 'error', 0);
                     }
                 });
-                // آپدیت legendها (سال جاری و پارسال)
-                buildLegend("mainChart", lineData.last_year, lineData.year);
-                buildLegend("efficiencyChart", lineData.last_year, lineData.year);
-                buildLegend("availabilityChart", lineData.last_year, lineData.year);
-                buildLegend("confidenceChart", lineData.last_year, lineData.year);
-            }
 
-            document.getElementById('btnSearch').addEventListener('click', async function () {
-                const dateInput = document.querySelector('.top-filter-date').value.trim();
-                if (!dateInput || !/^\d{4}\/\d{2}\/\d{2}$/.test(dateInput)) {
-                    showAlert('تاریخ نامعتبر', 'فرمت: ۱۴۰۴/۰۵/۲۲', 'warning');
-                    return;
-                }
-                Swal.fire({title: 'در حال بارگذاری...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-                try {
-                    const url = `/get-dashboard-data/?date=${encodeURIComponent(dateInput)}`;
-                    console.log("درخواست:", url);
-                    const response = await fetch(url);
-                    console.log("وضعیت:", response.status);
-                    if (!response.ok) {
-                        const text = await response.text();
-                        throw new Error(`سرور: ${response.status} → ${text.slice(0, 200)}`);
-                    }
-                    const data = await response.json();
-                    console.log("داده دریافتی:", data);
-                    // ────────────────────────────────
-                    // آپدیت کارت‌های بالا
-                    // ────────────────────────────────
-                    document.getElementById('stat-puretonkilo').innerHTML =
-                        `تن کیلومتر خالص<br>${Math.round(data.cards.puretonkilo).toLocaleString('fa-IR')}`;
-                    document.getElementById('stat-loadedtonkilo').innerHTML =
-                        `تن کیلومتر باردار<br>${Math.round(data.cards.loadedtonkilo).toLocaleString('fa-IR')}`;
-                    document.getElementById('stat-confidence').innerHTML =
-                        `ضریب اطمینان<br>%${Math.round(data.cards.confidence_factor)}`;
-                    document.getElementById('stat-availability').innerHTML =
-                        `آماده‌کاری<br>%${Math.round(data.cards.availability)}`;
-                    document.getElementById('stat-efficiency').innerHTML =
-                        `بهره وری<br>${Math.round(data.cards.efficiency).toLocaleString('fa-IR')}`;
-                    // ────────────────────────────────
-                    // آپدیت میانگین تن کیلومتر پایین نمودار اصلی
-                    // ────────────────────────────────
-                    document.getElementById('avg-last-year-tonkilo').textContent =
-                        Math.round(data.averages.last_avg_tonkilo).toLocaleString('fa-IR');
-                    document.getElementById('avg-this-year-tonkilo').textContent =
-                        Math.round(data.averages.current_avg_tonkilo).toLocaleString('fa-IR');
-                    // ────────────────────────────────
-                    // آپدیت مقادیر کوچک پایین کارت‌ها
-                    // ────────────────────────────────
-                    document.getElementById('eff-last-year').textContent = Math.round(data.averages.eff_last_year);
-                    document.getElementById('eff-this-month').textContent = Math.round(data.averages.eff_this_month);
-                    document.getElementById('ava-last-year').textContent = Math.round(data.averages.avail_last_year);
-                    document.getElementById('ava-this-month').textContent = Math.round(data.averages.avail_this_month);
-                    document.getElementById('conf-last-year').textContent = Math.round(data.averages.conf_last_year);
-                    document.getElementById('conf-this-month').textContent = Math.round(data.averages.conf_this_month);
-                    // آپدیت عنوان
-                    document.querySelector('.top-filter-title').textContent = data.selected_date;
-                    // آپدیت نمودارها
-                    if (data.bar) updateBarChart(data.bar);
-                    if (data.line) updateLineCharts(data.line);
-                    Swal.close();
-                    showAlert('با موفقیت بارگذاری شد', `داده‌های ${data.selected_date} نمایش داده شد`, 'success', 2200);
-                } catch (err) {
-                    Swal.close();
-                    console.error("خطا:", err);
-                    showAlert('خطا', `جزئیات: ${err.message}<br>کنسول رو چک کن`, 'error', 0);
-                }
-            });
+                document.getElementById('btnLastUpdate').addEventListener('click', function () {
+                    // محاسبه دیروز به فرمت شمسی (1404/11/25 مثلاً)
+                    const today = new Date();
+                    today.setDate(today.getDate() - 1); // یک روز قبل
+                    const yesterday = today.toLocaleDateString('fa-IR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    }).replace(/[/]/g, '/'); // تبدیل به ۱۴۰۴/۱۱/۲۵
 
-            document.getElementById('btnLastUpdate').addEventListener('click', function () {
-                // محاسبه دیروز به فرمت شمسی (1404/11/25 مثلاً)
-                const today = new Date();
-                today.setDate(today.getDate() - 1); // یک روز قبل
-                const yesterday = today.toLocaleDateString('fa-IR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit'
-                }).replace(/[/]/g, '/'); // تبدیل به ۱۴۰۴/۱۱/۲۵
+                    // آپدیت input تاریخ
+                    {#document.querySelector('.top-filter-date').value = yesterday;#}
 
-                // آپدیت input تاریخ
-                {#document.querySelector('.top-filter-date').value = yesterday;#}
+                    // آپدیت عنوان بالای فیلتر
+                    document.querySelector('.top-filter-title').textContent = yesterday;
 
-                // آپدیت عنوان بالای فیلتر
-                document.querySelector('.top-filter-title').textContent = yesterday;
+                    // نمایش پیام کوتاه
+                    showAlert('در حال بازگشت به آخرین بروزرسانی', 'داده‌های دیروز بارگذاری می‌شود...', 'info', 1500);
 
-                // نمایش پیام کوتاه
-                showAlert('در حال بازگشت به آخرین بروزرسانی', 'داده‌های دیروز بارگذاری می‌شود...', 'info', 1500);
-
-                // رفرش صفحه بعد از ۱.۵ ثانیه (برای دیدن پیام)
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-            });
-
-            document.getElementById('btnExport').addEventListener('click', async function () {
-                Swal.fire({
-                    title: 'در حال آماده‌سازی گزارش',
-                    text: 'لطفاً چند لحظه صبر کنید...',
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading()
+                    // رفرش صفحه بعد از ۱.۵ ثانیه (برای دیدن پیام)
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
                 });
 
-                try {
-                    // انتخاب بخش اصلی داشبورد برای عکس‌برداری
-                    const dashboardElement = document.getElementById('dashboardContainer');
-                    if (!dashboardElement) throw new Error('بخش داشبورد پیدا نشد');
-
-                    // گرفتن عکس از کل داشبورد
-                    const canvas = await html2canvas(dashboardElement, {
-                        scale: 2,                // کیفیت بالاتر
-                        useCORS: true,           // اگر تصویر خارجی داشت
-                        backgroundColor: '#f8f9fa', // پس‌زمینه روشن
-                        logging: false
+                document.getElementById('btnExport').addEventListener('click', async function () {
+                    Swal.fire({
+                        title: 'در حال آماده‌سازی گزارش',
+                        text: 'لطفاً چند لحظه صبر کنید...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
                     });
 
-                    // اضافه کردن تاریخ به عکس (اختیاری - اگر می‌خوای تاریخ داخل عکس باشه)
-                    const ctx = canvas.getContext('2d');
-                    const currentDate = document.querySelector('.top-filter-title').textContent ||
-                        new Date().toLocaleDateString('fa-IR', {
-                            year: 'numeric', month: '2-digit', day: '2-digit'
+                    try {
+                        // انتخاب بخش اصلی داشبورد برای عکس‌برداری
+                        const dashboardElement = document.getElementById('dashboardContainer');
+                        if (!dashboardElement) throw new Error('بخش داشبورد پیدا نشد');
+
+                        // گرفتن عکس از کل داشبورد
+                        const canvas = await html2canvas(dashboardElement, {
+                            scale: 2,                // کیفیت بالاتر
+                            useCORS: true,           // اگر تصویر خارجی داشت
+                            backgroundColor: '#f8f9fa', // پس‌زمینه روشن
+                            logging: false
                         });
 
-                    ctx.font = 'bold 28px Vazir, Tahoma, sans-serif';
-                    ctx.fillStyle = '#333';
-                    ctx.textAlign = 'right';
-                    ctx.fillText(`تاریخ گزارش: ${currentDate}`, canvas.width - 40, 60);
+                        // اضافه کردن تاریخ به عکس (اختیاری - اگر می‌خوای تاریخ داخل عکس باشه)
+                        const ctx = canvas.getContext('2d');
+                        const currentDate = document.querySelector('.top-filter-title').textContent ||
+                            new Date().toLocaleDateString('fa-IR', {
+                                year: 'numeric', month: '2-digit', day: '2-digit'
+                            });
 
-                    // تبدیل canvas به فایل PNG و دانلود
-                    const link = document.createElement('a');
-                    link.download = `گزارش_داشبورد_${currentDate.replace(/\//g, '-')}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
+                        ctx.font = 'bold 28px Vazir, Tahoma, sans-serif';
+                        ctx.fillStyle = '#333';
+                        ctx.textAlign = 'right';
+                        ctx.fillText(`تاریخ گزارش: ${currentDate}`, canvas.width - 40, 60);
 
-                    Swal.close();
-                    showAlert('دانلود موفق', 'گزارش به صورت عکس ذخیره شد', 'success', 2500);
+                        // تبدیل canvas به فایل PNG و دانلود
+                        const link = document.createElement('a');
+                        link.download = `گزارش_داشبورد_${currentDate.replace(/\//g, '-')}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
 
-                } catch (err) {
-                    Swal.close();
-                    console.error('خطا در تولید گزارش:', err);
-                    showAlert('خطا', `ساخت گزارش ناموفق بود<br>${err.message}`, 'error', 0);
-                }
+                        Swal.close();
+                        showAlert('دانلود موفق', 'گزارش به صورت عکس ذخیره شد', 'success', 2500);
+
+                    } catch (err) {
+                        Swal.close();
+                        console.error('خطا در تولید گزارش:', err);
+                        showAlert('خطا', `ساخت گزارش ناموفق بود<br>${err.message}`, 'error', 0);
+                    }
+                });
             });
-        });
     </script>
 {% endblock javascripts %}
 
