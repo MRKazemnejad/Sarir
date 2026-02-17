@@ -1,0 +1,45 @@
+<div class="search-card mb-4">
+    <form method="get" class="search-form">
+
+        <div class="row align-items-end account">
+
+            <!-- تاریخ از -->
+            <div class="col-md-3">
+                <label class="search-label">از تاریخ</label>
+                <input type="text" name="date_from"
+                       value="{{ request.GET.date_from }}"
+                       class="form-control" data-jdp>
+            </div>
+
+            <!-- تاریخ تا -->
+            <div class="col-md-3">
+                <label class="search-label">تا تاریخ</label>
+                <input type="text" name="date_to"
+                       value="{{ request.GET.date_to }}"
+                       class="form-control" data-jdp>
+            </div>
+
+            <!-- شماره لکوموتیو -->
+            <div class="col-md-3">
+                <label class="search-label">شماره لکوموتیو</label>
+                <input type="text" name="locomotive"
+                       value="{{ request.GET.locomotive }}"
+                       class="form-control"
+                       placeholder="مثلاً 1234">
+            </div>
+
+            <!-- دکمه‌ها -->
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    🔍 جستجو
+                </button>
+
+                <a href="{{ request.path }}" class="btn btn-light w-100">
+                    پاکسازی
+                </a>
+            </div>
+
+        </div>
+
+    </form>
+</div>

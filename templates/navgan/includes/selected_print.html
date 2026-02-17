@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="utf-8">
+  <title>چاپ مدارک - {{ license.invoice_code }}</title>
+
+  <style>
+    body { font-family: Tahoma,'B Nazanin',sans-serif; margin:0; background:#fff; }
+
+    {#.doc-box { border:4px solid #003087; border-radius:12px; overflow:hidden; height:92vh; }#}
+    .doc-box img, .doc-box iframe { width:100%; height:100%; border:none; }
+    .title { background:#003087; color:white; padding:15px; text-align:center; font-size:1.8rem; }
+    @page { size:A4; margin:1cm; }
+  </style>
+</head>
+<body>
+  {% include 'contract/includes/printHeader.html' %}
+
+  {% if show_license_pdf and license_pdf %}
+    <div class="page">
+{#      <div class="title">فرم مجوز خرید – {{ license.invoice_code }}</div>#}
+      <div class="doc-box"><iframe src="{{ license_pdf.url }}"></iframe></div>
+    </div>
+  {% endif %}
+
+  {% if show_contract_pdf %}{% for img in contract.contractimg_set.all %}
+    <div class="page">
+{#      <div class="title">قرارداد – {{ license.invoice_code }}</div>#}
+      <div class="doc-box"><img src="{{ img.image.url }}"></div>
+    </div>
+  {% endfor %}{% endif %}
+
+  {% if show_commission %}{% for img in contract.contractcommissionimg_set.all %}
+    <div class="page">
+{#      <div class="title">مصوبه کمیسیون معاملات</div>#}
+      <div class="doc-box"><img src="{{ img.image.url }}"></div>
+    </div>
+  {% endfor %}{% endif %}
+
+  {% if show_approval %}{% for img in contract.contractapprovalimg_set.all %}
+    <div class="page">
+{#      <div class="title">مصوبه هیئت مدیره</div>#}
+      <div class="doc-box"><img src="{{ img.image.url }}"></div>
+    </div>
+  {% endfor %}{% endif %}
+
+  {% if show_contract_imgs %}{% for img in contract.contractimg_set.all %}
+    <div class="page">
+{#      <div class="title">تصویر قرارداد</div>#}
+      <div class="doc-box"><img src="{{ img.image.url }}"></div>
+    </div>
+  {% endfor %}{% endif %}
+
+  {% if show_check %}{% for img in contract.contractcheckimg_set.all %}
+    <div class="page">
+{#      <div class="title">تصویر چک تضمین</div>#}
+      <div class="doc-box"><img src="{{ img.image.url }}"></div>
+    </div>
+  {% endfor %}{% endif %}
+</body>
+</html>

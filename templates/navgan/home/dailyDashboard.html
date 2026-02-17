@@ -1,0 +1,1070 @@
+{% extends "navgan/base/base.html" %}
+{% load my_tags %}
+
+{% block title %}داشبورد مدیریتی{% endblock %}
+
+{% block stylesheets %}
+
+
+
+
+    <style>
+        .stat-card {
+            background: #dfe4f5;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .chart-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-row {
+            display: flex;
+            justify-content: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            user-select: none;
+        }
+
+        .checkbox-label input {
+            display: none;
+        }
+
+        .checkmark {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            border: 2px solid #ccc;
+            display: inline-block;
+            position: relative;
+        }
+
+        .checkmark::after {
+            content: "";
+            position: absolute;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            left: 3px;
+            top: 1px;
+            opacity: 0;
+        }
+
+        .checkbox-label input:checked + .checkmark::after {
+            opacity: 1;
+        }
+
+        .check-this {
+            background: #008FFB; /* رنگ خط امسال */
+            border-color: #008FFB;
+        }
+
+        .check-last {
+            background: #00E396; /* رنگ خط سال قبل */
+            border-color: #00E396;
+        }
+
+        /* ریسپانسیو چک‌باکس‌ها */
+        @media (max-width: 576px) {
+            .checkbox-row {
+                gap: 10px;
+            }
+
+            .checkbox-label {
+                font-size: 12px;
+            }
+        }
+
+        .apexcharts-legend-series {
+            margin-left: 10px !important;
+        }
+
+        .apexcharts-legend-text {
+            margin-right: 6px !important;
+        }
+
+        {#*************************************************************************************#}
+
+        /* کارت سفید */
+        .confidence-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 12px 14px 10px 14px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        }
+
+        /* فقط ناحیه نمودار سبز */
+        .conf-chart-wrapper {
+            background: #dcefed;
+            border-radius: 6px;
+            padding: 8px 10px 4px 10px;
+            height: 215px;
+        }
+
+        /* پایین کارت */
+        .conf-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-top: 8px;
+        }
+
+        /* درصدها سمت چپ */
+        .conf-legend-left {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-weight: bold;
+        }
+
+        .conf-legend-left .item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+        }
+
+        /* مربع رنگ */
+        .box {
+            width: 14px;
+            height: 14px;
+            border: 2px solid;
+            display: inline-block;
+        }
+
+        .y1403 {
+            background: #f3b21a;
+            border-color: #f3b21a;
+        }
+
+        .y1404 {
+            background: #546e7a;
+            border-color: #546e7a;
+        }
+
+        /* عنوان راست پایین */
+        .conf-title {
+            font-size: 14px;
+            color: #333;
+            padding-bottom: 2px;
+        }
+
+        .chart-legend-top {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            user-select: none;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            opacity: 1;
+            transition: .25s;
+        }
+
+        .legend-item.off {
+            opacity: .35;
+        }
+
+        .legend-color {
+            width: 18px;
+            height: 10px;
+            border: 2px solid;
+            background: transparent;
+        }
+
+        .legend-last {
+            border-color: #f3b21a;
+        }
+
+        .legend-this {
+            border-color: #546e7a;
+        }
+
+
+        .main-chart-wrapper {
+            background: #dcefed;
+            border-radius: 8px;
+            padding: 12px 16px 10px 8px;
+            position: relative;
+            height: 350px; /* دقیقاً برابر Apex */
+        }
+
+
+        @media (max-width: 768px) {
+            .main-chart-wrapper {
+                height: 300px;
+            }
+        }
+
+
+        /* ================= HEADER FILTER BAR ================= */
+
+
+        .top-filter-outer {
+            direction: rtl;
+            padding: 14px 18px 0 18px;
+        }
+
+        /* بنر بنفش */
+        .top-filter-bar {
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(90deg, #8e44ad, #9b59b6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+            padding: 0 14px;
+        }
+
+        /* عنوان وسط */
+        .top-filter-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: .5px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* ستون راست */
+        .top-filter-right {
+            margin-left: auto; /* ⬅️ کلید اصلی راست‌چین واقعی */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* لیبل */
+        .top-filter-label {
+            color: #f1e9f8;
+            font-size: 13px;
+        }
+
+        /* input تاریخ */
+        .top-filter-date {
+            height: 30px;
+            width: 110px;
+            border-radius: 4px;
+            border: none;
+            outline: none;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .filter-btn {
+            height: 30px;
+            padding: 0 12px;
+            background: #a07aa9; /* روشن‌تر از قبلی */
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        /* وقتی موس میره روش → باز هم روشن‌تر */
+        .filter-btn:hover {
+            background: #bcadc5;
+        }
+
+
+        /* موبایل */
+        @media (max-width: 768px) {
+
+            .top-filter-bar {
+                height: auto;
+                flex-wrap: wrap;
+                padding: 10px;
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .top-filter-title {
+                position: static;
+                transform: none;
+                width: 100%;
+                text-align: center;
+                margin-bottom: 6px;
+            }
+
+            .top-filter-right {
+                margin-left: 0;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+
+        {#**************************************************************************************************#}
+        .farsi-swal {
+            direction: rtl !important;
+            font-family: 'Vazir', 'Tahoma', sans-serif !important;
+            text-align: center !important;
+        }
+
+        .farsi-swal .swal2-title {
+            font-size: 1.4rem !important;
+        }
+
+        .farsi-swal .swal2-html-container {
+            font-size: 1.1rem !important;
+        }
+
+        .centered-swal {
+            direction: rtl !important;
+            font-family: 'Vazir', 'Tahoma', sans-serif !important;
+            text-align: right !important;
+            max-width: 550px !important; /* عرض مناسب برای وسط صفحه */
+            padding: 2rem !important;
+        }
+
+        .centered-swal .swal2-title {
+            font-size: 1.6rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .centered-swal .swal2-html-container {
+            font-size: 1.15rem !important;
+            line-height: 1.6 !important;
+        }
+
+        /* اگر می‌خوای backdrop تیره‌تر و واضح‌تر باشه */
+        .swal2-backdrop {
+            background: rgba(0, 0, 0, 0.65) !important; /* تیره‌تر از پیش‌فرض */
+        }
+
+        /* اگر می‌خوای popup کمی بزرگ‌تر و مرکزی‌تر به نظر بیاد */
+        .swal2-popup {
+            border-radius: 16px !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        @font-face {
+            font-family: 'Vazir';
+            src: url('/static/fonts/vazir/Vazirmatn-Bold.ttf') format('ttf');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+    </style>
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+
+
+
+    <div class="top-filter-outer account">
+
+        <div class="top-filter-bar">
+
+            <div class="top-filter-title">
+                {{ selected_date|default:"1404-11-26" }}
+            </div>
+
+            <div class="top-filter-right">
+
+                <span class="top-filter-label">تاریخ</span>
+
+                <input class="top-filter-date"
+                       type="text"
+                       value="" data-jdp>
+
+                <button class="filter-btn" id="btnSearch">جستجو</button>
+                <button class="filter-btn" id="btnLastUpdate">آخرین بروزرسانی</button>
+                <button class="filter-btn" id="btnExport">دریافت گزارش</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+
+    <div id="dashboardContainer">
+
+        <div class="container-fluid mt-4 account">
+
+            <!-- کارت‌های آماری -->
+
+            <div class="row text-center mb-4">
+                <div class="col-12 col-sm-4 col-md-3 col-lg-3 mb-2">
+                    <div class="stat-card" id="stat-puretonkilo">
+                        تن کیلومتر خالص<br>{{ puretonkilo|floatformat:0|to_persian_number }}
+                    </div>
+                </div>
+                <div class="col-12 col-sm-4 col-md-3 col-lg-3 mb-2">
+                    <div class="stat-card" id="stat-loadedtonkilo">
+                        تن کیلومتر باردار<br>{{ loadedtonkilo|floatformat:0|to_persian_number }}
+                    </div>
+                </div>
+                <div class="col-12 col-sm-4 col-md-3 col-lg-2 mb-2">
+                    <div class="stat-card" id="stat-confidence">
+                        ضریب اطمینان<br>%{{ confidence_factor|floatformat:0|to_persian_number }}
+                    </div>
+                </div>
+                <div class="col-12 col-sm-4 col-md-3 col-lg-2 mb-2">
+                    <div class="stat-card" id="stat-availability">
+                        آماده‌کاری<br>%{{ availability|floatformat:0|to_persian_number }}
+                    </div>
+                </div>
+                <div class="col-12 col-sm-4 col-md-3 col-lg-2 mb-2">
+                    <div class="stat-card" id="stat-efficiency">
+                        بهره وری<br>{{ efficiency|floatformat:0|to_persian_number }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- نمودارهای اصلی -->
+            <div class="row">
+                <div class="col-12 col-lg-6 mb-3">
+                    <div class="chart-card">
+                        <h6>نمودار عملکرد به تفکیک لکوموتیو و ناحیه</h6>
+                        <div id="barChart1"></div>
+                    </div>
+                </div>
+
+
+                <div class="col-12 col-lg-6 mb-3">
+                    <div class="chart-card">
+                        <h6>نمودار عملکرد روزانه</h6>
+
+                        <div class="main-chart-wrapper">
+                            <div class="chart-legend-top" id="legend-mainChart"></div>
+                            <canvas id="mainChart"></canvas>
+                        </div>
+
+                        <!-- 🔽 این بخش جدید -->
+
+                        <div class="conf-bottom mb-2">
+                            <div class="conf-legend-left">
+                                <div class="item">
+                                    <span class="box y1403"></span>
+                                    <span id="avg-last-year-tonkilo">{{ last_avg_tonkilo|floatformat:0|to_persian_number }}</span>
+                                </div>
+                                <div class="item">
+                                    <span class="box y1404"></span>
+                                    <span id="avg-this-year-tonkilo">{{ current_avg_tonkilo|floatformat:0|to_persian_number }}</span>
+                                </div>
+                            </div>
+                            <div class="conf-title">تن کیلومتر خالص</div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+            </div>
+
+            <!-- نمودارهای پایینی -->
+            <div class="row">
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="confidence-card">
+
+                        <div class="conf-chart-wrapper">
+                            <div class="chart-legend-top" id="legend-efficiencyChart"></div>
+                            <canvas id="efficiencyChart"></canvas>
+                        </div>
+
+                        <div class="conf-bottom ">
+
+                            <!-- بهره‌وری -->
+                            <div class="conf-legend-left">
+                                <div class="item">
+                                    <span class="box y1403"></span>
+                                    <span id="eff-last-year">{{ eff_last_year|floatformat:0|to_persian_number }}</span>
+                                    <small></small>
+                                </div>
+                                <div class="item">
+                                    <span class="box y1404"></span>
+                                    <span id="eff-this-month">{{ eff_this_month|floatformat:0|to_persian_number }}</span>
+                                    <small></small>
+                                </div>
+                            </div>
+
+                            <div class="conf-title">
+                                بهره‌وری
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="confidence-card">
+
+                        <div class="conf-chart-wrapper">
+                            <div class="chart-legend-top" id="legend-availabilityChart"></div>
+                            <canvas id="availabilityChart"></canvas>
+                        </div>
+
+                        <div class="conf-bottom">
+
+                            <!-- آماده‌کاری -->
+                            <div class="conf-legend-left">
+                                <div class="item">
+                                    <span class="box y1403"></span>
+                                    <span id="ava-last-year">{{ avail_last_year|floatformat:0|to_persian_number }} %</span>
+                                    <small></small>
+                                </div>
+                                <div class="item">
+                                    <span class="box y1404"></span>
+                                    <span id="ava-this-month">{{ avail_this_month|floatformat:0|to_persian_number }} %</span>
+                                    <small></small>
+                                </div>
+                            </div>
+                            <div class="conf-title">
+                                آماده‌کاری
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="confidence-card">
+
+                        <div class="conf-chart-wrapper">
+                            <div class="chart-legend-top" id="legend-confidenceChart"></div>
+                            <canvas id="confidenceChart"></canvas>
+                        </div>
+
+                        <div class="conf-bottom">
+
+                            <!-- ضریب اطمینان -->
+                            <div class="conf-legend-left">
+                                <div class="item">
+                                    <span class="box y1403"></span>
+                                    <span id="conf-last-year">{{ conf_last_year|floatformat:0|to_persian_number }} %</span>
+                                </div>
+                                <div class="item">
+                                    <span class="box y1404"></span>
+                                    <span id="conf-this-month">{{ conf_this_month|floatformat:0|to_persian_number }} %</span>
+                                </div>
+                            </div>
+                            <div class="conf-title">
+                                ضریب اطمینان
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    <script src="/static/js/chart.js"></script>
+    <script src="/static/js/html2canvas.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function formatNumber(value) {
+                if (value === null || value === undefined) return "";
+                return Math.round(value).toLocaleString('en-US');
+            }
+
+            function buildLegend(chartId, yearLast, yearThis) {
+                const el = document.getElementById("legend-" + chartId);
+                if (!el) return;
+                el.innerHTML = `
+                    <div class="legend-item" data-chart="${chartId}" data-index="1">
+                        <span class="legend-color legend-last"></span>
+                        ${yearLast}
+                    </div>
+                    <div class="legend-item" data-chart="${chartId}" data-index="0">
+                        <span class="legend-color legend-this"></span>
+                        ${yearThis}
+                    </div>
+                `;
+            }
+
+            const regionColors = {
+                19: "#F6F600", 21: "#FBDA66", 18: "#E0B801", 25: "#B4FE69",
+                10: "#33CC33", 11: "#00963F", 12: "#0A6A11", 17: "#00ccff",
+                8: "#3568FF", 16: "#0001FD", 23: "#6A1918", 20: "#C30101",
+                22: "#FB544E", 13: "#FBD2FE", 14: "#FA9FCA", 15: "#CA64A6",
+                9: "#9C34FF", 26: "#B0007D", 30: "#5E045B", 29: "#C5E3B4",
+                28: "#C8BFE7", 24: "#264478"
+            };
+
+            function showAlert(title, text, icon = 'info', timer = 3000) {
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: icon,
+                    confirmButtonText: 'باشه',
+                    confirmButtonColor: '#3085d6',
+                    timer: timer,
+                    timerProgressBar: true,
+                    position: 'center',
+                    backdrop: true,
+                    allowOutsideClick: true,
+                    allowEscapeKey: true,
+                    toast: false,
+                    customClass: {
+                        popup: 'farsi-swal centered-swal'
+                    }
+                });
+            }
+
+            const chartAreaBG = {
+                id: 'chartAreaBG',
+                beforeDraw(chart, args, opts) {
+                    const {ctx, chartArea} = chart;
+                    if (!chartArea) return;
+                    ctx.save();
+                    ctx.fillStyle = opts.color || '#dcefed';
+                    ctx.fillRect(
+                        chartArea.left,
+                        chartArea.top,
+                        chartArea.right - chartArea.left,
+                        chartArea.bottom - chartArea.top
+                    );
+                    ctx.restore();
+                }
+            };
+            let barChartInstance = null;  // متغیر جهانی برای ذخیره ApexChart
+            fetch("/daily-chart")
+                .then(r => r.json())
+                .then(data => buildBarChart(data));
+
+            function buildBarChart(data) {
+                const series = data.regions.map(r => ({name: r.name, data: r.data}));
+                const colors = data.regions.map(r => regionColors[r.code]);
+                barChartInstance = new ApexCharts(document.querySelector("#barChart1"), {
+                    chart: {type: 'bar', height: 350, stacked: true, background: '#f4f6fb'},
+                    series: series,
+                    colors: colors,
+                    dataLabels: {enabled: false},
+                    xaxis: {
+                        categories: data.loco_name,
+                        labels: {rotate: -45, rotateAlways: true, offsetY: 12, offsetX: -8}
+                    },
+                    yaxis: {
+                        max: data.max_number,
+                        labels: {formatter: (v) => formatNumber(v)}
+                    },
+                    legend: {position: 'top', fontSize: '11px'}
+                });
+                barChartInstance.render();
+            }
+
+            fetch("/daily-chartline/")
+                .then(r => r.json())
+                .then(data => {
+                    buildLegend("efficiencyChart", data.last_year, data.year);
+                    buildLegend("availabilityChart", data.last_year, data.year);
+                    buildLegend("confidenceChart", data.last_year, data.year);
+                    buildMainChart(data);
+                    buildSmallCharts(data);
+                });
+
+            function buildMainChart(data) {
+                buildLegend("mainChart", data.last_year, data.year);
+                const ctx = document.getElementById("mainChart");
+                charts["mainChart"] = new Chart(ctx, {
+                    type: 'line',
+                    plugins: [chartAreaBG],
+                    data: {
+                        labels: data.days,
+                        datasets: [
+                            {
+                                label: 'امسال',
+                                data: data.pure.this,
+                                borderColor: '#546e7a',
+                                borderWidth: 3,
+                                tension: 0.35,
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: '#546e7a'
+                            },
+                            {
+                                label: 'سال قبل',
+                                data: data.pure.last,
+                                borderColor: '#f3b21a',
+                                borderWidth: 2,
+                                tension: 0.35,
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: '#f3b21a'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        layout: {
+                            padding: {left: 15, right: 15, top: 10, bottom: 5}
+                        },
+                        maintainAspectRatio: false,
+                        interaction: {mode: 'index', intersect: false},
+                        plugins: {
+                            legend: {display: false},
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => ctx.dataset.label + " : " + formatNumber(ctx.parsed.y)
+                                }
+                            },
+                            chartAreaBG: {color: '#dcefed'}
+                        },
+                        scales: {
+                            x: {
+                                offset: true,
+                                ticks: {
+                                    padding: 18,
+                                    maxRotation: 0,
+                                    autoSkip: true,
+                                    maxTicksLimit: 15
+                                },
+                                grid: {color: 'rgba(0,0,0,0.05)'}
+                            },
+                            y: {
+                                grace: '8%',
+                                ticks: {
+                                    padding: 8,
+                                    callback: (v) => formatNumber(v)
+                                },
+                                grid: {color: 'rgba(0,0,0,0.08)'}
+                            }
+                        }
+                    }
+                });
+            }
+
+            const charts = {};
+
+            function buildSmallCharts(data) {
+                buildSmallChart("efficiencyChart", data.eff.this, data.eff.last, data.days);
+                buildSmallChart("availabilityChart", data.ava.this, data.ava.last, data.days);
+                buildSmallChart("confidenceChart", data.conf.this, data.conf.last, data.days);
+            }
+
+            function buildSmallChart(id, thisYear, lastYear, days) {
+                const ctx = document.getElementById(id);
+                if (!ctx) return;
+                charts[id] = new Chart(ctx, {
+                    type: 'line',
+                    plugins: [chartAreaBG],
+                    data: {
+                        labels: days,
+                        datasets: [
+                            {
+                                label: 'امسال',
+                                data: thisYear,
+                                borderColor: '#546e7a',
+                                backgroundColor: '#546e7a',
+                                borderWidth: 3,
+                                tension: 0.35,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointBorderWidth: 2,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#546e7a'
+                            },
+                            {
+                                label: 'سال قبل',
+                                data: lastYear,
+                                borderColor: '#f3b21a',
+                                backgroundColor: '#f3b21a',
+                                borderWidth: 2,
+                                tension: 0.35,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointBorderWidth: 2,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#f3b21a'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: {display: false},
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => ctx.dataset.label + " : " + Math.round(ctx.parsed.y) + " %"
+                                }
+                            },
+                            chartAreaBG: {color: '#dcefed'}
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    padding: 20,
+                                    callback: (v, i) => days[i] % 2 === 1 ? days[i] : "",
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                },
+                                grid: {color: 'rgba(0,0,0,0.08)'}
+                            },
+                            y: {
+                                ticks: {callback: (v) => Math.round(v) + "%"},
+                                grid: {color: 'rgba(0,0,0,0.08)'}
+                            }
+                        }
+                    }
+                });
+            }
+
+            document.querySelectorAll('.toggleAvg').forEach(cb => {
+                cb.addEventListener('change', function () {
+                    const chart = charts[this.dataset.target];
+                    if (!chart) return;
+                    const index = this.dataset.series === "thisYear" ? 0 : 1;
+                    chart.data.datasets[index].hidden = !this.checked;
+                    chart.update();
+                });
+            });
+            document.addEventListener("click", function (e) {
+                const item = e.target.closest(".legend-item");
+                if (!item) return;
+                const chartId = item.dataset.chart;
+                const datasetIndex = parseInt(item.dataset.index);
+                const chart = charts[chartId];
+                if (!chart) return;
+                const meta = chart.getDatasetMeta(datasetIndex);
+                meta.hidden = meta.hidden === null
+                    ? !chart.data.datasets[datasetIndex].hidden
+                    : null;
+                item.classList.toggle("off");
+                chart.update();
+            });
+
+            // تابع آپدیت نمودار میله‌ای Apex
+            function updateBarChart(barData) {
+                if (barChartInstance) {
+                    barChartInstance.updateOptions({
+                        xaxis: {categories: barData.loco_name},
+                        series: barData.regions.map(r => ({name: r.name, data: r.data})),
+                        colors: barData.regions.map(r => regionColors[r.code] || '#775DD0'),
+                        yaxis: {max: barData.max_number}
+                    });
+                } else {
+                    console.warn("نمودار Apex هنوز ساخته نشده - دوباره می‌سازیم");
+                    buildBarChart(barData);
+                }
+            }
+
+            // تابع آپدیت نمودارهای خطی Chart.js
+            function updateLineCharts(lineData) {
+                const days = lineData.days;
+                // main chart
+                if (charts.mainChart) {
+                    charts.mainChart.data.labels = days;
+                    charts.mainChart.data.datasets[0].data = lineData.pure.this;
+                    charts.mainChart.data.datasets[1].data = lineData.pure.last;
+                    charts.mainChart.update();
+                }
+                // سه نمودار کوچک
+                const smallMap = {
+                    efficiencyChart: 'eff',
+                    availabilityChart: 'ava',
+                    confidenceChart: 'conf'
+                };
+                Object.keys(smallMap).forEach(id => {
+                    const chart = charts[id];
+                    const key = smallMap[id];
+                    if (chart) {
+                        chart.data.labels = days;
+                        chart.data.datasets[0].data = lineData[key].this;
+                        chart.data.datasets[1].data = lineData[key].last;
+                        chart.update();
+                    }
+                });
+                // آپدیت legendها (سال جاری و پارسال)
+                buildLegend("mainChart", lineData.last_year, lineData.year);
+                buildLegend("efficiencyChart", lineData.last_year, lineData.year);
+                buildLegend("availabilityChart", lineData.last_year, lineData.year);
+                buildLegend("confidenceChart", lineData.last_year, lineData.year);
+            }
+
+            document.getElementById('btnSearch').addEventListener('click', async function () {
+                const dateInput = document.querySelector('.top-filter-date').value.trim();
+                if (!dateInput || !/^\d{4}\/\d{2}\/\d{2}$/.test(dateInput)) {
+                    showAlert('تاریخ نامعتبر', 'فرمت: ۱۴۰۴/۰۵/۲۲', 'warning');
+                    return;
+                }
+                Swal.fire({title: 'در حال بارگذاری...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+                try {
+                    const url = `/get-dashboard-data/?date=${encodeURIComponent(dateInput)}`;
+                    console.log("درخواست:", url);
+                    const response = await fetch(url);
+                    console.log("وضعیت:", response.status);
+                    if (!response.ok) {
+                        const text = await response.text();
+                        throw new Error(`سرور: ${response.status} → ${text.slice(0, 200)}`);
+                    }
+                    const data = await response.json();
+                    console.log("داده دریافتی:", data);
+                    // ────────────────────────────────
+                    // آپدیت کارت‌های بالا
+                    // ────────────────────────────────
+                    document.getElementById('stat-puretonkilo').innerHTML =
+                        `تن کیلومتر خالص<br>${Math.round(data.cards.puretonkilo).toLocaleString('fa-IR')}`;
+                    document.getElementById('stat-loadedtonkilo').innerHTML =
+                        `تن کیلومتر باردار<br>${Math.round(data.cards.loadedtonkilo).toLocaleString('fa-IR')}`;
+                    document.getElementById('stat-confidence').innerHTML =
+                        `ضریب اطمینان<br>%${Math.round(data.cards.confidence_factor)}`;
+                    document.getElementById('stat-availability').innerHTML =
+                        `آماده‌کاری<br>%${Math.round(data.cards.availability)}`;
+                    document.getElementById('stat-efficiency').innerHTML =
+                        `بهره وری<br>${Math.round(data.cards.efficiency).toLocaleString('fa-IR')}`;
+                    // ────────────────────────────────
+                    // آپدیت میانگین تن کیلومتر پایین نمودار اصلی
+                    // ────────────────────────────────
+                    document.getElementById('avg-last-year-tonkilo').textContent =
+                        Math.round(data.averages.last_avg_tonkilo).toLocaleString('fa-IR');
+                    document.getElementById('avg-this-year-tonkilo').textContent =
+                        Math.round(data.averages.current_avg_tonkilo).toLocaleString('fa-IR');
+                    // ────────────────────────────────
+                    // آپدیت مقادیر کوچک پایین کارت‌ها
+                    // ────────────────────────────────
+                    document.getElementById('eff-last-year').textContent = Math.round(data.averages.eff_last_year);
+                    document.getElementById('eff-this-month').textContent = Math.round(data.averages.eff_this_month);
+                    document.getElementById('ava-last-year').textContent = Math.round(data.averages.avail_last_year);
+                    document.getElementById('ava-this-month').textContent = Math.round(data.averages.avail_this_month);
+                    document.getElementById('conf-last-year').textContent = Math.round(data.averages.conf_last_year);
+                    document.getElementById('conf-this-month').textContent = Math.round(data.averages.conf_this_month);
+                    // آپدیت عنوان
+                    document.querySelector('.top-filter-title').textContent = data.selected_date;
+                    // آپدیت نمودارها
+                    if (data.bar) updateBarChart(data.bar);
+                    if (data.line) updateLineCharts(data.line);
+                    Swal.close();
+                    showAlert('با موفقیت بارگذاری شد', `داده‌های ${data.selected_date} نمایش داده شد`, 'success', 2200);
+                } catch (err) {
+                    Swal.close();
+                    console.error("خطا:", err);
+                    showAlert('خطا', `جزئیات: ${err.message}<br>کنسول رو چک کن`, 'error', 0);
+                }
+            });
+
+            document.getElementById('btnLastUpdate').addEventListener('click', function () {
+                // محاسبه دیروز به فرمت شمسی (1404/11/25 مثلاً)
+                const today = new Date();
+                today.setDate(today.getDate() - 1); // یک روز قبل
+                const yesterday = today.toLocaleDateString('fa-IR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                }).replace(/[/]/g, '/'); // تبدیل به ۱۴۰۴/۱۱/۲۵
+
+                // آپدیت input تاریخ
+                {#document.querySelector('.top-filter-date').value = yesterday;#}
+
+                // آپدیت عنوان بالای فیلتر
+                document.querySelector('.top-filter-title').textContent = yesterday;
+
+                // نمایش پیام کوتاه
+                showAlert('در حال بازگشت به آخرین بروزرسانی', 'داده‌های دیروز بارگذاری می‌شود...', 'info', 1500);
+
+                // رفرش صفحه بعد از ۱.۵ ثانیه (برای دیدن پیام)
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            });
+
+            document.getElementById('btnExport').addEventListener('click', async function () {
+                Swal.fire({
+                    title: 'در حال آماده‌سازی گزارش',
+                    text: 'لطفاً چند لحظه صبر کنید...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                try {
+                    // انتخاب بخش اصلی داشبورد برای عکس‌برداری
+                    const dashboardElement = document.getElementById('dashboardContainer');
+                    if (!dashboardElement) throw new Error('بخش داشبورد پیدا نشد');
+
+                    // گرفتن عکس از کل داشبورد
+                    const canvas = await html2canvas(dashboardElement, {
+                        scale: 2,                // کیفیت بالاتر
+                        useCORS: true,           // اگر تصویر خارجی داشت
+                        backgroundColor: '#f8f9fa', // پس‌زمینه روشن
+                        logging: false
+                    });
+
+                    // اضافه کردن تاریخ به عکس (اختیاری - اگر می‌خوای تاریخ داخل عکس باشه)
+                    const ctx = canvas.getContext('2d');
+                    const currentDate = document.querySelector('.top-filter-title').textContent ||
+                        new Date().toLocaleDateString('fa-IR', {
+                            year: 'numeric', month: '2-digit', day: '2-digit'
+                        });
+
+                    ctx.font = 'bold 28px Vazir, Tahoma, sans-serif';
+                    ctx.fillStyle = '#333';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(`تاریخ گزارش: ${currentDate}`, canvas.width - 40, 60);
+
+                    // تبدیل canvas به فایل PNG و دانلود
+                    const link = document.createElement('a');
+                    link.download = `گزارش_داشبورد_${currentDate.replace(/\//g, '-')}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
+                    Swal.close();
+                    showAlert('دانلود موفق', 'گزارش به صورت عکس ذخیره شد', 'success', 2500);
+
+                } catch (err) {
+                    Swal.close();
+                    console.error('خطا در تولید گزارش:', err);
+                    showAlert('خطا', `ساخت گزارش ناموفق بود<br>${err.message}`, 'error', 0);
+                }
+            });
+        });
+    </script>
+{% endblock javascripts %}
+
+
+
+
+
+
+

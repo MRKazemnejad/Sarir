@@ -1,0 +1,598 @@
+
+
+{% extends "navgan/base/base.html" %}
+
+{% block title %}داشبورد مدیریتی{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .stat-card {
+            border-radius: 12px;
+            height: 110px; /* کارت کوچکتر */
+        }
+
+        .stat-card .card-body {
+            padding: 6px 10px;
+        }
+
+        .side-number small {
+            font-size: 11px;
+            color: #777;
+        }
+
+        .side-number h4 {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* دایره بزرگ نسبت به کارت */
+        .apex-chart-box {
+            width: 110px;
+            height: 110px;
+            min-width: 110px;
+            min-height: 110px;
+        }
+
+        .apex-chart-box svg {
+            width: 110px !important;
+            height: 110px !important;
+        }
+
+        .apex-chart-box .apexcharts-text tspan {
+            font-size: 18px !important;
+            font-weight: bold;
+        }
+
+        @media (max-width: 576px) {
+            .stat-card {
+                height: auto;
+            }
+
+            .stat-card .card-body {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+        }
+
+        #reliabilityChart,
+        #availabilityChart {
+            height: 180px;
+            min-height: 140px;
+        }
+
+        .semi-radial {
+            height: 80px;
+        }
+
+        .semi-radial svg {
+            overflow: visible;
+        }
+
+
+        {#**************************************************************************************************#}
+        .card {
+            border: 0;
+            border-radius: 14px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-body {
+            padding: 16px;
+        }
+
+        .card h6 {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #e3e6f0;
+            box-shadow: none;
+            padding: 10px 12px;
+        }
+
+        .btn-primary {
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-weight: 600;
+        }
+
+
+    </style>
+{% endblock stylesheets %}
+
+
+{% block content %}
+    <!-- Time Filter -->
+    <div class="card mb-4">
+        <div class="card-body account">
+            <form class="form-row align-items-end">
+
+                <div class="col-md-4 col-sm-6 mb-3">
+                    <label for="dateFrom">از تاریخ</label>
+                    <input type="text" class="form-control" id="dateFrom" name="date_from" data-jdp value="1404/01/01">
+                </div>
+
+                <div class="col-md-4 col-sm-6 mb-3">
+                    <label for="dateTo">تا تاریخ</label>
+                    <input type="text" class="form-control" id="dateTo" name="date_to" data-jdp value="1404/12/29">
+                </div>
+
+                <div class="col-md-4 col-sm-12 mb-3">
+                    <button type="button" class="btn btn-primary btn-block">
+                        اعمال فیلتر
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+
+        <!-- Card 1 -->
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body account d-flex align-items-center justify-content-between">
+
+                    <!-- Left Number -->
+                    <div class="side-number text-left">
+                        <small class="text-muted">تن کیلومتر</small>
+                        <h4 class="mb-0">1,245,000</h4>
+                    </div>
+
+                    <!-- Apex Radial Bar -->
+                    <div class="apex-chart-box">
+                        <div id="apexRegionChart"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body account d-flex align-items-center justify-content-between">
+
+                    <div class="side-number text-left">
+                        <small class="text-muted">تن کیلومتر / روز</small>
+                        <h4 class="mb-0">123</h4>
+                    </div>
+
+
+                    <div class="side-number text-right">
+                        <small class="text-muted">تن کیلومتر / کیلومتر</small>
+                        <h4 class="mb-0">456</h4>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-lg-4 col-md-12 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body account d-flex align-items-center justify-content-between">
+
+                    <div class="side-number text-left">
+                        <small class="text-muted">سوخت / کیلومتر</small>
+                        <h4 class="mb-0">789</h4>
+                    </div>
+
+
+                    <div class="side-number text-right">
+                        <small class="text-muted">روغن / 100 کیلومتر</small>
+                        <h4 class="mb-0">101</h4>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="row mb-4">
+
+        <!-- Combo Chart -->
+        <div class="col-lg-6 col-md-12 mb-3">
+            <div class="card h-100">
+                <div class="card-body account">
+                    <h6 class="mb-3">گزارش ماهانه عملکرد</h6>
+                    <div id="monthlyComboChart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Radial Charts -->
+        <div class="col-lg-6 col-md-12 mb-3">
+            <div class="card h-100">
+                <div class="card-body account">
+                    <h6 class="mb-3 text-center">شاخص‌های کلیدی</h6>
+
+                    <div class="row text-center">
+
+                        <div class="col-6">
+                            <div id="reliabilityChart"></div>
+                            <small class="text-muted">قابلیت اطمینان</small>
+                        </div>
+
+                        <div class="col-6">
+                            <div id="availabilityChart"></div>
+                            <small class="text-muted">آماده‌به‌کاری</small>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mb-4">
+
+        <!-- Card 1 -->
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card stat-card h-200">
+                <div class="card-body account d-flex align-items-center justify-content-between">
+
+                    <div class="side-number text-left">
+                        <small class="text-muted">عدد سمت چپ</small>
+                        <h4 class="mb-0">123</h4>
+                    </div>
+
+
+                    <div class="side-number text-right">
+                        <small class="text-muted">عدد سمت راست</small>
+                        <h4 class="mb-0">456</h4>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card stat-card h-200">
+                <div class="card-body account d-flex align-items-center justify-content-between">
+
+                    <div class="side-number text-left">
+                        <small class="text-muted">عدد سمت چپ</small>
+                        <h4 class="mb-0">123</h4>
+                    </div>
+
+
+                    <div class="side-number text-right">
+                        <small class="text-muted">عدد سمت راست</small>
+                        <h4 class="mb-0">456</h4>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-lg-4 col-md-12 mb-3">
+            <div class="card stat-card h-200">
+                <div class="card-body account d-flex align-items-center justify-content-between">
+
+                    <div class="side-number text-left">
+                        <small class="text-muted">عدد سمت چپ</small>
+                        <h4 class="mb-0">789</h4>
+                    </div>
+
+
+                    <div class="side-number text-right">
+                        <small class="text-muted">عدد سمت راست</small>
+                        <h4 class="mb-0">101</h4>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mb-4">
+
+        <!-- Card 1 -->
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body account d-flex align-items-center justify-content-between">
+
+                    <!-- Left Number -->
+                    <div class="side-number text-left">
+                        <small class="text-muted">تن کیلومتر</small>
+                        <h4 class="mb-0">1,245,000</h4>
+                    </div>
+
+                    <!-- Apex Radial Bar -->
+                    <div class="apex-chart-box">
+                        <div id="semiRadial1" class="semi-radial"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body account d-flex align-items-center justify-content-between">
+
+                    <!-- Left Number -->
+                    <div class="side-number text-left">
+                        <small class="text-muted">تن کیلومتر</small>
+                        <h4 class="mb-0">1,245,000</h4>
+                    </div>
+
+                    <!-- Apex Radial Bar -->
+                    <div class="apex-chart-box">
+                        <div id="semiRadial2" class="semi-radial"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-lg-4 col-md-12 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body account d-flex align-items-center justify-content-between">
+
+                    <!-- Left Number -->
+                    <div class="side-number text-left">
+                        <small class="text-muted">تن کیلومتر</small>
+                        <h4 class="mb-0">1,245,000</h4>
+                    </div>
+
+                    <!-- Apex Radial Bar -->
+                    <div class="apex-chart-box">
+                        <div id="semiRadial3" class="semi-radial"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+{% endblock content %}
+
+{% block javascripts %}
+    <script>
+        /* =========================
+           Radial Small Card (Top-left)
+           ========================= */
+        var options = {
+            chart: {
+                type: 'radialBar',
+                height: '100%',
+                width: '100%',
+                sparkline: {enabled: true}
+            },
+            series: [72],
+            plotOptions: {
+                radialBar: {
+                    hollow: {size: '55%'},
+                    track: {background: '#eee', strokeWidth: '100%'},
+                    dataLabels: {
+                        show: true,
+                        name: {show: false},
+                        value: {
+                            fontSize: '18px',
+                            fontWeight: 700,
+                            offsetY: 2,
+                            formatter: val => val + "%"
+                        }
+                    }
+                }
+            },
+            colors: ['#4e73df'],
+            stroke: {
+                lineCap: 'round',
+                width: 20
+            }
+        };
+
+        new ApexCharts(
+            document.querySelector("#apexRegionChart"),
+            options
+        ).render();
+    </script>
+
+    <script>
+        /* =========================
+           Monthly Combo Chart (Modern)
+           ========================= */
+
+        var comboOptions = {
+            chart: {
+                height: 320,
+                type: 'line',
+                stacked: false,
+                toolbar: {
+                    show: true,
+                    offsetX: -10,
+                    offsetY: -5,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
+                    }
+                }
+            },
+            series: [
+                {
+                    name: '1404',
+                    type: 'column',
+                    data: [120, 150, 180, 170, 200, 220, 210, 230, 250, 270, 260, 300]
+                },
+                {
+                    name: '1403',
+                    type: 'line',
+                    data: [65, 68, 70, 69, 72, 74, 73, 75, 77, 78, 76, 80]
+                }
+            ],
+            stroke: {width: [0, 3]},
+            plotOptions: {
+                bar: {columnWidth: '55%', borderRadius: 4}
+            },
+            markers: {size: 4},
+            grid: {
+                borderColor: '#e8e8e8',
+                strokeDashArray: 4,
+                padding: {left: 0, right: 0}
+            },
+            xaxis: {
+                tickPlacement: 'on',
+                labels: {offsetY: 5, style: {fontSize: '12px', colors: '#6c757d'}},
+                axisBorder: {show: false},
+                axisTicks: {show: false},
+                categories: [
+                    'فروردین', 'اردیبهشت', 'خرداد', 'تیر',
+                    'مرداد', 'شهریور', 'مهر', 'آبان',
+                    'آذر', 'دی', 'بهمن', 'اسفند'
+                ]
+            },
+            yaxis: {
+                title: {text: 'تن کیلومتر'},
+                axisBorder: {show: true, color: '#e3e6f0', offsetX: 0},
+                axisTicks: {show: true},
+                labels: {show: true, align: 'left', offsetX: -5, style: {colors: '#6c757d'}}
+            },
+            colors: ['#4e73df', '#e74a3b'],
+            tooltip: {shared: true, intersect: false, theme: 'dark'},
+            legend: {position: 'top', horizontalAlign: 'right', labels: {colors: '#6c757d'}}
+        };
+
+        new ApexCharts(
+            document.querySelector("#monthlyComboChart"),
+            comboOptions
+        ).render();
+
+
+        /* =========================
+           Radial Charts (Shared Config)
+           ========================= */
+        var baseRadialOptions = {
+            chart: {
+                type: 'radialBar',
+                height: 180
+            },
+            plotOptions: {
+                radialBar: {
+                    hollow: {size: '55%'},
+                    track: {background: '#f3f4f6'},
+                    dataLabels: {
+                        name: {show: false},
+                        value: {
+                            fontSize: '18px',
+                            fontWeight: 700,
+                            color: '#3a3f51',
+                            offsetY: 4,
+                            formatter: function (val) {
+                                return val + '%';
+                            }
+                        }
+                    }
+                }
+            },
+            stroke: {lineCap: 'round'}
+        };
+
+
+        /* =========================
+           Reliability Chart
+           ========================= */
+        new ApexCharts(
+            document.querySelector("#reliabilityChart"),
+            {
+                ...baseRadialOptions,
+                series: [88],
+                colors: ['#1cc88a']
+            }
+        ).render();
+
+
+        /* =========================
+           Availability Chart
+           ========================= */
+        new ApexCharts(
+            document.querySelector("#availabilityChart"),
+            {
+                ...baseRadialOptions,
+                series: [72],
+                colors: ['#36b9cc']
+            }
+        ).render();
+    </script>
+
+    <script>
+        /* =========================
+           Semi Circle Radial (Base)
+           ========================= */
+        function semiRadialOptions(value, color) {
+            return {
+                chart: {
+                    type: 'radialBar',
+                    height: 100,
+                    sparkline: {enabled: true}
+                },
+                series: [value],
+                plotOptions: {
+                    radialBar: {
+                        startAngle: -90,
+                        endAngle: 90,
+                        hollow: {size: '65%'},
+                        track: {background: '#f3f4f6', strokeWidth: '100%'},
+                        dataLabels: {
+                            name: {show: false},
+                            value: {
+                                fontSize: '14px',
+                                fontWeight: 700,
+                                color: '#3a3f51',
+                                offsetY: -5,
+                                formatter: function (val) {
+                                    return val + '%';
+                                }
+                            }
+                        }
+                    }
+                },
+                stroke: {lineCap: 'round'},
+                colors: [color]
+            };
+        }
+
+        /* =========================
+           Render Charts
+           ========================= */
+        new ApexCharts(
+            document.querySelector("#semiRadial1"),
+            semiRadialOptions(72, '#4e73df')
+        ).render();
+
+        new ApexCharts(
+            document.querySelector("#semiRadial2"),
+            semiRadialOptions(85, '#1cc88a')
+        ).render();
+
+        new ApexCharts(
+            document.querySelector("#semiRadial3"),
+            semiRadialOptions(60, '#f6c23e')
+        ).render();
+    </script>
+
+{% endblock javascripts %}
+
+

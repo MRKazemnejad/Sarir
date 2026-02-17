@@ -1,0 +1,145 @@
+{% extends "navgan/base/base.html" %}
+
+{% block title %}پیام‌ها و نوتیفیکیشن‌ها{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ================= Notifications ================= */
+.notification-wrapper {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+}
+
+.notify {
+    min-width: 300px;
+    padding: .9rem 1.2rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,.12);
+    animation: slideIn .4s ease;
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.notify-success {
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.notify-error {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.notify-warning {
+    background: #fffbeb;
+    color: #92400e;
+}
+
+.notify-info {
+    background: #eff6ff;
+    color: #1e40af;
+}
+
+.notify-icon {
+    font-size: 1.3rem;
+}
+
+.notify-text {
+    line-height: 1.6;
+}
+
+.notify-close {
+    margin-right: auto;
+    cursor: pointer;
+    font-size: 1.2rem;
+    opacity: .6;
+}
+
+.notify-close:hover {
+    opacity: 1;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ریسپانسیو */
+@media (max-width: 576px) {
+    .notification-wrapper {
+        right: 1rem;
+        left: 1rem;
+    }
+    .notify {
+        min-width: auto;
+    }
+}
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+
+{% if messages %}
+<div class="notification-wrapper">
+    {% for message in messages %}
+        <div class="notify notify-{{ message.tags }}">
+            <span class="notify-icon">
+                {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle"></i>
+                {% elif message.tags == 'error' %}
+                    <i class="fas fa-times-circle"></i>
+                {% elif message.tags == 'warning' %}
+                    <i class="fas fa-exclamation-triangle"></i>
+                {% else %}
+                    <i class="fas fa-info-circle"></i>
+                {% endif %}
+            </span>
+
+            <span class="notify-text">
+                {{ message }}
+            </span>
+
+            <span class="notify-close" onclick="this.parentElement.remove()">×</span>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container py-4">
+    <h4 class="fw-bold mb-3">نمونه صفحه نوتیفیکیشن</h4>
+    <p class="text-muted">
+        این صفحه فقط برای نمایش سیستم پیام‌هاست.
+        پیام‌ها از views جنگو ارسال می‌شوند.
+    </p>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+/* بستن خودکار بعد از 4 ثانیه */
+setTimeout(() => {
+    document.querySelectorAll('.notify').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(40px)';
+        setTimeout(() => el.remove(), 400);
+    });
+}, 4000);
+</script>
+
+{% endblock javascripts %}
+

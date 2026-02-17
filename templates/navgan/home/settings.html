@@ -1,0 +1,207 @@
+{% extends "navgan/base/base.html" %}
+
+{% block title %}تنظیمات سیستم{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .settings-card {
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+            padding: 1.5rem;
+        }
+
+        .settings-tabs {
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-tabs .nav-link {
+            font-weight: 700;
+            color: #6b7280;
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: .8rem 1.2rem;
+        }
+
+        .settings-tabs .nav-link.active {
+            color: #1f2937;
+            border-color: #2563eb;
+            background: transparent;
+        }
+
+        .tab-section {
+            padding-top: 1rem;
+        }
+
+        .form-label {
+            font-weight: 700;
+            font-size: .8rem;
+        }
+
+        .section-title {
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #111827;
+            border-right: 4px solid #2563eb;
+            padding-right: .6rem;
+        }
+
+        .reserve-box {
+            border: 1px dashed #d1d5db;
+            border-radius: .8rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #f9fafb;
+        }
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="container-fluid py-4">
+
+        <h4 class="fw-bold mb-4 text-center">صفحه تنظیمات</h4>
+
+        <div class="settings-card account">
+
+            <!-- Tabs -->
+            <ul class="nav settings-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#locomotive">🚆 لکوموتیو</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#dashboard">📊 داشبورد استاتیک</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#general">⚙️ تنظیمات عمومی</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#reserve">📅 رزرو</a>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+
+                <!-- لکوموتیو -->
+                <div class="tab-pane fade show active tab-section" id="locomotive">
+                    <div class="section-title">تنظیمات لکوموتیو</div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">حداکثر سرعت (km/h)</label>
+                            <input type="number" class="form-control" placeholder="مثلاً 120">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">ظرفیت کشش (تن)</label>
+                            <input type="number" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">وضعیت فعال</label>
+                            <select class="form-control">
+                                <option>فعال</option>
+                                <option>غیرفعال</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- داشبورد -->
+                <div class="tab-pane fade tab-section" id="dashboard">
+                    <div class="section-title">داشبورد استاتیک</div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">نمایش تعداد واگن‌ها</label>
+                            <select class="form-control">
+                                <option>بله</option>
+                                <option>خیر</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">نمایش نمودار ماهانه</label>
+                            <select class="form-control">
+                                <option>بله</option>
+                                <option>خیر</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- عمومی -->
+                <div class="tab-pane fade tab-section" id="general">
+                    <div class="section-title">تنظیمات عمومی</div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">آدرس URL</label>
+                            <input
+                                    type="url"
+                                    class="form-control"
+                                    placeholder="https://example.com"
+                                    name="system_url">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">نام کاربری</label>
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="username"
+                                    name="username">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">رمز عبور</label>
+                            <input
+                                    type="password"
+                                    class="form-control"
+                                    placeholder="••••••••"
+                                    name="password">
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- رزرو -->
+                <div class="tab-pane fade tab-section" id="reserve">
+                    <div class="section-title">تنظیمات رزرو</div>
+
+                    <div class="reserve-box">
+                        <strong>رزرو لکوموتیو</strong>
+                        <p class="text-muted mb-2">فعال‌سازی سیستم رزرو لکوموتیو</p>
+                        <select class="form-control">
+                            <option>فعال</option>
+                            <option>غیرفعال</option>
+                        </select>
+                    </div>
+
+                    <div class="reserve-box">
+                        <strong>رزرو واگن</strong>
+                        <p class="text-muted mb-2">حداکثر روزهای رزرو</p>
+                        <input type="number" class="form-control" value="7">
+                    </div>
+
+                    <div class="reserve-box">
+                        <strong>رزرو مسیر</strong>
+                        <p class="text-muted mb-2">امکان رزرو همزمان چند مسیر</p>
+                        <select class="form-control">
+                            <option>بله</option>
+                            <option>خیر</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    <!-- Bootstrap tabs نیاز به JS دارند -->
+    <script>
+        // اگر Bootstrap JS لود است، این بخش خالی هم باشه مشکلی نیست
+    </script>
+{% endblock javascripts %}

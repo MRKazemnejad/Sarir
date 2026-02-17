@@ -1,0 +1,205 @@
+.table-container {
+    max-height: 50vh;
+    overflow-y: auto;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    position: relative;
+    font-size: 1rem;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on touch devices */
+    direction: rtl; /* Ensure RTL layout */
+}
+
+.table-container table {
+    width: 100%;
+    min-width: 800px; /* Minimum width to ensure horizontal scrolling */
+    margin-bottom: 0;
+    table-layout: fixed;
+}
+
+.table-container thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 1;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table-container th,
+.table-container td {
+    text-align: center;
+    padding: 8px;
+    font-size: 0.7rem;
+}
+
+/* Column widths */
+.table-container th:nth-child(1), .table-container td:nth-child(1) { width: 12%; } /* Part */
+.table-container th:nth-child(2), .table-container td:nth-child(2) { width: 12%; } /* Serial */
+.table-container th:nth-child(3), .table-container td:nth-child(3) { width: 12%; } /* Contractor */
+.table-container th:nth-child(4), .table-container td:nth-child(4) { width: 12%; } /* Send Date */
+.table-container th:nth-child(5), .table-container td:nth-child(5) { width: 12%; } /* Receive Date */
+.table-container th:nth-child(6), .table-container td:nth-child(6) { width: 12%; } /* Repair Days */
+.table-container th:nth-child(7), .table-container td:nth-child(7) { width: 12%; } /* Average Repair Days */
+.table-container th:nth-child(8), .table-container td:nth-child(8) { width: 16%; } /* Actions */
+
+/* Optimize inputs (number and text) */
+.table-container input[type="number"],
+.table-container input[type="text"] {
+    width: 100%;
+    min-width: 80px; /* Minimum width for inputs */
+    box-sizing: border-box;
+    font-size: 0.7rem;
+    padding: 4px;
+    white-space: nowrap; /* Prevent text wrapping in inputs */
+}
+
+/* Optimize inputs (select and input) */
+.table-container select,
+.table-container input[type="text"],
+.table-container input[type="number"] {
+    width: 100%;
+    min-width: 80px; /* Minimum width for inputs */
+    box-sizing: border-box;
+    font-size: 0.7rem;
+    padding: 4px;
+}
+
+/* Optimize action link (assuming it should be a link) */
+.table-container td:last-child {
+    font-size: 0.7rem;
+    color: #007bff;
+    text-decoration: none;
+    padding: 4px 8px;
+    display: inline-block;
+    min-width: 80px; /* Ensure action text is wide enough */
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.table-container td:last-child:hover {
+    background-color: #e9ecef;
+}
+
+/* Optimize search form inputs */
+.form-group input[type="text"],
+.form-group select {
+    width: 100%;
+    min-width: 120px; /* Ensure enough space for inputs and selects */
+    font-size: 0.7rem;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+/* Select2 styling for search form */
+.select2-container {
+    width: 100% !important;
+    direction: rtl;
+}
+
+.select2-selection__rendered {
+    text-align: right;
+    font-size: 0.7rem;
+    padding: 5px;
+}
+
+.select2-selection {
+    min-height: 34px; /* Match Bootstrap input height */
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.select2-selection__arrow {
+    height: 34px !important; /* Match input height */
+}
+
+/* Settings for small screens */
+@media (max-width: 768px) {
+    .table-container {
+        max-height: 40vh;
+        overflow-x: auto;
+    }
+    .table-container th,
+    .table-container td {
+        font-size: 0.6rem;
+        padding: 4px;
+        width: auto;
+    }
+    /* Ensure visibility and usability of filter selects and action text */
+    .table-container .table-filter select {
+        min-width: 70px; /* Slightly smaller for mobile */
+        font-size: 0.6rem;
+        padding: 3px;
+    }
+    .table-container td:last-child {
+        font-size: 0.6rem;
+        padding: 3px 6px;
+        min-width: 70px;
+    }
+    /* Optimize search form inputs for mobile */
+    .form-group input[type="text"],
+    .form-group select {
+        min-width: 100px;
+        font-size: 0.6rem;
+        padding: 4px;
+    }
+    .select2-selection__rendered {
+        font-size: 0.6rem;
+        padding: 4px;
+    }
+    .select2-selection {
+        min-height: 30px;
+    }
+    .select2-selection__arrow {
+        height: 30px !important;
+    }
+}
+
+/* Print settings (compatible with jsPDF) */
+@media print {
+    .table-container {
+        max-height: none !important;
+        overflow-y: visible !important;
+        overflow-x: visible !important;
+        position: static !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        top: 0 !important;
+    }
+    .table-container table {
+        table-layout: fixed !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        page-break-inside: avoid;
+    }
+    .table-container thead th {
+        position: static !important;
+        background: #fff !important;
+    }
+    .table-container th,
+    .table-container td {
+        padding: 5px !important;
+        font-size: 0.7rem !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+    /* Hide filter row during print */
+    .table-container .table-filter {
+        display: none !important;
+    }
+    /* Ensure action text is visible in print */
+    .table-container td:last-child {
+        font-size: 0.7rem !important;
+        padding: 4px 8px !important;
+        color: #000 !important;
+        text-decoration: underline !important;
+    }
+    /* Hide search form during print */
+    .card-body.account form {
+        display: none !important;
+    }
+}
+
+/* Ensure jalaliDatepicker compatibility */
+.jdp-container {
+    z-index: 1000; /* Ensure datepicker is above other elements */
+    max-width: 300px;
+}

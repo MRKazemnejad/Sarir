@@ -1,0 +1,275 @@
+{% extends "navgan/base/base.html" %}
+
+{% block title %}وضعیت لکوموتیوها{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        :root {
+            --green: #22c55e;
+            --yellow: #facc15;
+            --blue: #3b82f6;
+            --red: #ef4444;
+        }
+
+        /* لجند */
+        .status-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            justify-content: center;
+            font-weight: bold;
+            font-size: .95rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: .4rem;
+        }
+
+        .lg-green {
+            background: var(--green);
+        }
+
+        .lg-yellow {
+            background: var(--yellow);
+        }
+
+        .lg-blue {
+            background: var(--blue);
+        }
+
+        .lg-red {
+            background: var(--red);
+        }
+
+        /* کادر لجند */
+        .legend-wrapper {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 1.2rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, .06);
+            padding: 1.5rem 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .legend-title {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #111827;
+            font-size: 1rem;
+        }
+
+        /* کارت‌ها */
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.2rem;
+            padding: 1rem 0;
+        }
+
+        .report-card {
+            border-radius: 1.2rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, .07);
+            transition: .3s ease;
+            overflow: hidden;
+        }
+
+        .report-card:hover {
+            transform: translateY(-6px);
+        }
+
+        /* وضعیت‌ها */
+        .status-normal {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            border-color: var(--green);
+        }
+
+        .status-warmdepot {
+            background: linear-gradient(135deg, #fef9c3, #fde68a);
+            border-color: var(--yellow);
+        }
+
+        .status-cold{
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-color: var(--blue);
+        }
+
+        .status-3hour {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border-color: var(--red);
+        }
+
+        .card-content {
+            padding: 1.2rem;
+            font-weight: bold;
+        }
+
+        .loco-number {
+            font-size: 1.6rem;
+            text-align: center;
+            margin-bottom: .8rem;
+            color: #111827;
+        }
+
+        .card-subtitle {
+            display: block;
+            font-size: .85rem;
+            color: #1f2937;
+            text-align: right;
+            margin-bottom: .4rem;
+        }
+
+        @media (max-width: 576px) {
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .loco-number {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="container-fluid py-4 account">
+
+        <h4 class="fw-bold text-center mb-3">وضعیت لحظه‌ای لکوموتیوها</h4>
+
+        <!-- لجند -->
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+                <div class="legend-wrapper">
+
+                    <div class="legend-title">
+                        راهنمای وضعیت لکوموتیوها
+                    </div>
+
+                    <div class="text-center text-muted mb-3" style="font-size:.85rem">
+                        آخرین به‌روزرسانی :
+                        <span id="last-update">
+                         {{ last_update }}
+                        </span>
+                    </div>
+
+                    <div class="status-legend">
+                        <div class="legend-item">
+                            <span class="legend-color lg-green"></span> تردد عادی
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color lg-red"></span> توقف بیش از ۳ ساعت
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color lg-yellow"></span> توقف گرم در دپو
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color lg-blue"></span> لکوموتیو سرد
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت‌ها -->
+        <div class="report-grid">
+
+            {% for loco in locomotives %}
+                <a href="{% url 'navgan:locomotive_detail' loco.number %}" class="text-decoration-none">
+                    <div id="loco-{{ loco.number }}"
+                         class="report-card status-{{ loco.status }}">
+
+                        <div class="card-content account">
+                            <div class="loco-number mb-1">
+                                {{ loco.number }}
+                            </div>
+
+                            <span class="card-subtitle">
+                        ایستگاه :
+                        <span class="station">{{ loco.station }} - (  {{ loco.type }})</span>
+                    </span>
+
+                     <span class="card-subtitle">
+                       وضعیت :
+                        <span class="totalStatus">{{ loco.total_status }}</span>
+                    </span>
+
+                            <span class="card-subtitle">
+                        ورود :
+                        <span class="entry">{{ loco.entry }}</span>
+                    </span>
+
+                            <span class="card-subtitle">
+                        خروج :
+                        <span class="exit">{{ loco.exit }}</span>
+                    </span>
+                        </div>
+                    </div>
+                </a>
+            {% empty %}
+                <div class="text-center text-muted fw-bold">
+                    داده‌ای برای نمایش وجود ندارد
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+
+
+
+
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+const protocol = location.protocol === "https:" ? "wss" : "ws";
+const socket = new WebSocket(protocol + "://" + location.host + "/ws/locos/");
+
+function mapStatus(s) {
+    if (s === "NORMAL") return "normal";
+    if (s === "STOP_3H") return "3hour";
+    if (s === "HOT_DEPOT") return "warmdepot";
+    if (s === "COLD") return "cold";
+    return "normal";
+}
+
+socket.onmessage = function (e) {
+    const data = JSON.parse(e.data);
+    if (!Array.isArray(data)) return;
+
+    // ⏱ آپدیت زمان
+    if (data.length && data[0].last_update) {
+        document.getElementById("last-update").innerText = data[0].last_update;
+    }
+
+    data.forEach(loco => {
+        const card = document.getElementById(`loco-${loco.number}`);
+        if (!card) return;
+
+
+        card.className = `report-card status-${mapStatus(loco.status)}`;
+
+        const stationArea=loco.station+"("+loco.type+")"
+
+        card.querySelector(".station").innerText = stationArea || "-";
+        card.querySelector(".totalStatus").innerText = loco.total_status || "-";
+
+        card.querySelector(".entry").innerText = loco.entry || "-";
+        card.querySelector(".exit").innerText = loco.exit || "-";
+    });
+};
+</script>
+
+
+{% endblock javascripts %}

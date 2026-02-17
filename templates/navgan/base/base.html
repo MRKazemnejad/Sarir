@@ -1,0 +1,221 @@
+{% load static %}
+
+<!doctype html>
+<html lang="fa">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/static/img/logo/logo.png">
+    <title>شرکت سریر لجستیک هوشمند ایرانیان</title>
+    <!-- Simple bar CSS -->
+    <link rel="stylesheet" href="/static/css/simplebar.css">
+
+    <!-- Icons CSS -->
+    <link rel="stylesheet" href="/static/css/feather.css">
+    <link rel="stylesheet" href="/static/css/select2.css">
+    <link rel="stylesheet" href="/static/css/dropzone.css">
+    <link rel="stylesheet" href="/static/css/uppy.min.css">
+    <link rel="stylesheet" href="/static/css/jquery.steps.css">
+    <link rel="stylesheet" href="/static/css/jquery.timepicker.css">
+    <link rel="stylesheet" href="/static/css/quill.snow.css">
+    <!-- Date Range Picker CSS -->
+    <link rel="stylesheet" href="/static/css/daterangepicker.css">
+    <!-- App CSS -->
+    <link rel="stylesheet" href="/static/css/app-light.css" id="lightTheme">
+    <link rel="stylesheet" href="/static/css/app-dark.css" id="darkTheme" disabled>
+
+    <!-- Persian font -->
+    <link rel="stylesheet" href="/static/css/account.css">
+
+    <!-- Style -->
+    <link rel="stylesheet" href="/static/css/style.css?v1.4">
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="/static/css/all.min.css">
+
+
+    <!-- date picker -->
+    <link type="text/css" rel="stylesheet" href="/static/jalaliDatePicker/jalalidatepicker.min.css"/>
+    <script type="text/javascript" src="/static/jalaliDatePicker/jalalidatepicker.min.js"></script>
+
+    <!-- Include Font Awesome for icons -->
+
+    <link rel="stylesheet" href="/static/css/all.min.css?v1.0">
+    <script src="/static/js/sweetalert2/sweetalert2@11.js"></script>
+
+    <!-- Select2 CSS -->
+    <link href="/static/css/select2.min.css" rel="stylesheet"/>
+
+
+    <!--sidebar hilight-->
+    <style>
+
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        footer {
+        {#background-color: #f8f8f8;#}{#text-align: center;#} padding: 10px 10px;
+        }
+
+        .nav-link.active, .dropdown-item.active {
+            background-color: #e1f3f8;
+            color: white;
+        }
+
+        .search-card {
+            background: #ffffff;
+            border-radius: 1rem;
+            padding: 1.2rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, .08);
+        }
+
+        .search-label {
+            font-size: .75rem;
+            font-weight: 800;
+            color: #374151;
+            margin-bottom: .3rem;
+        }
+
+        .search-form .form-control {
+            font-size: .8rem;
+        }
+
+        .search-form .btn {
+            font-weight: 700;
+            font-size: .8rem;
+        }
+
+
+    </style>
+
+
+    {% block stylesheets %}{% endblock stylesheets %}
+</head>
+<body class="vertical  light rtl ">
+<div class="wrapper">
+    {% include 'navgan/includes/navbar.html' %}
+    {% include 'navgan/includes/sidbar.html' %}
+
+
+    <main role="main" class="main-content">
+        {% block content %}{% endblock content %}
+    </main> <!-- main -->
+    {% include 'navgan/includes/footer.html' %}
+</div> <!-- .wrapper -->
+
+<script src="/static/js/jquery.min.js"></script>
+
+<script src="/static/js/popper.min.js"></script>
+<script src="/static/js/moment.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/simplebar.min.js"></script>
+<script src='/static/js/daterangepicker.js'></script>
+<script src='/static/js/jquery.stickOnScroll.js'></script>
+<script src="/static/js/tinycolor-min.js"></script>
+<script src="/static/js/config.js"></script>
+<script src="/static/js/d3.min.js"></script>
+<script src="/static/js/topojson.min.js"></script>
+<script src="/static/js/datamaps.all.min.js"></script>
+<script src="/static/js/datamaps-zoomto.js"></script>
+<script src="/static/js/datamaps.custom.js"></script>
+<script src="/static/js/Chart.min.js"></script>
+
+
+<script src="/static/js/gauge.min.js"></script>
+<script src="/static/js/jquery.sparkline.min.js"></script>
+<script src="/static/js/apexcharts.min.js"></script>
+<script src="/static/js/apexcharts.custom.js"></script>
+<script src='/static/js/jquery.mask.min.js'></script>
+<script src='/static/js/select2.min.js'></script>
+<script src='/static/js/jquery.steps.min.js'></script>
+<script src='/static/js/jquery.validate.min.js'></script>
+<script src='/static/js/jquery.timepicker.js'></script>
+<script src='/static/js/dropzone.min.js'></script>
+<script src='/static/js/uppy.min.js'></script>
+<script src='/static/js/quill.min.js'></script>
+
+<script src="/static/js/sweetalert2.all.min.js"></script>
+
+<script src="/static/js/select2.min.js"></script>
+<script src="/static/js/apps.js"></script>
+
+
+<script src="/static/js/contract.js"></script>
+
+
+<script>
+    // jQuery code for initializing a tooltip
+    $(document).ready(function () {
+        // jQuery Attribute value selector to
+        // select the specified element and
+        // call the tooltip method on it
+        $('[data-toggle="tooltip"]').tooltip();
+    })
+</script>
+
+
+{% block javascripts %}{% endblock javascripts %}
+
+
+<!-- jalalidate time -->
+<script>
+    // راه‌حل نهایی: فعال‌سازی jalaliDatepicker حتی وقتی داخل تب مخفی اینکلود شده باشه
+    (function () {
+        // اگر قبلاً اجرا شده، دوباره اجرا نشه
+        if (window.jdpInitialized) return;
+        window.jdpInitialized = true;
+
+        // تابع اصلی فعال‌سازی
+        function initJalaliDatepicker() {
+            if (typeof jalaliDatepicker === 'undefined') {
+                // هنوز لود نشده، 100ms دیگه امتحان کن
+                {#setTimeout(initJalaliDatepicker, 100);#}
+                return;
+            }
+
+            // تمام input های data-jdp رو پیدا کن (حتی داخل تب‌های مخفی)
+            const inputs = document.querySelectorAll('input[data-jdp]');
+            if (inputs.length > 0) {
+                jalaliDatepicker.startWatch({
+                    minDate: "attr",
+                    maxDate: "attr",
+                    top: "auto",
+                    zIndex: 1050
+                });
+
+            }
+        }
+
+        // 1. اول وقتی DOM آماده شد
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initJalaliDatepicker);
+        } else {
+            initJalaliDatepicker();
+        }
+
+        // 2. وقتی تب عوض شد (مهم‌ترین قسمت!)
+        $(document).on('shown.bs.tab', 'a[data-toggle="pill"], a[data-toggle="tab"]', function () {
+            setTimeout(initJalaliDatepicker, 50); // کمی تأخیر برای اطمینان از رندر کامل
+        });
+
+        // 3. وقتی مودال باز شد (اگر فیلد تاریخ داخل مودال باشه)
+        $(document).on('shown.bs.modal', function () {
+            setTimeout(initJalaliDatepicker, 100);
+        });
+
+        // 4. برای اطمینان بیشتر: هر 500ms چک کن (در بدترین حالت!)
+        {#setInterval(initJalaliDatepicker, 800);#}
+
+    })();
+</script>
+
+
+</body>
+</html>
+{% load sweetify %}
+{% sweetify %}

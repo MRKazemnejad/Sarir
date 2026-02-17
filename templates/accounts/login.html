@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+    <title>شرکت سریر لجستیک هوشمند ایرانیان</title>
+    <!-- Simple bar CSS -->
+    <link rel="stylesheet" href="/static/css/simplebar.css">
+
+
+    <!-- Icons CSS -->
+    <link rel="stylesheet" href="/static/css/feather.css">
+    <!-- Date Range Picker CSS -->
+    <link rel="stylesheet" href="/static/css/daterangepicker.css">
+    <!-- App CSS -->
+    <link rel="stylesheet" href="/static/css/app-light.css" id="lightTheme">
+    <link rel="stylesheet" href="/static/css/app-dark.css" id="darkTheme" disabled>
+
+
+    <!-- Persian font -->
+    <link rel="stylesheet" href="/static/css/account.css">
+
+
+</head>
+<body class="light rtl">
+<div class="wrapper vh-100">
+    <div class="row align-items-center h-100">
+        <form class="col-lg-3 col-md-4 col-10 mx-auto text-center" method="post" action="{% url 'accounts:login' %}">
+            {% csrf_token %}
+
+            <a class="navbar-brand my-4 d-flex justify-content-center" href="https://sarirlogistic.com">
+                <img src="/static/img/logo/logo1.png" alt="sarir_logo" >
+            </a>
+
+                        <h3 class=" mb-3 account">سامانه پایش ناوگان</h3>
+            <div class="form-group">
+                <label for="inputEmail" class="sr-only account">Email address</label>
+                <input type="text" id="username" name="username" class="form-control form-control-lg account"
+                       placeholder="نام کاربری" required autofocus="">
+            </div>
+            <div class="form-group">
+                <label for="inputPassword" class="sr-only account">Password</label>
+                <input type="password" id="password" name="password" class="form-control form-control-lg account"
+                       placeholder="کلمه عبور" required>
+            </div>
+
+            <button class="btn btn-lg btn-primary btn-block account" type="submit">ورود</button>
+            <p class="mt-5 mb-3 text-muted"> Developed by &copy;<a target="_blank" rel="noopener noreferrer"
+                                                                   href="https://algorithmeg.com">MohammadReza
+                Kazemnejad</a>
+                {{ version }}</p>
+        </form>
+    </div>
+
+</div>
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/popper.min.js"></script>
+<script src="/static/js/moment.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/simplebar.min.js"></script>
+<script src='/static/js/daterangepicker.js'></script>
+<script src='/static/js/jquery.stickOnScroll.js'></script>
+<script src="/static/js/tinycolor-min.js"></script>
+<script src="/static/js/config.js"></script>
+<script src="/static/js/apps.js"></script>
+
+
+</body>
+</html>
+</body>
+</html>
+{% load sweetify %}
+{% sweetify %}

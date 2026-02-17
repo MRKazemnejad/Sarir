@@ -1,0 +1,63 @@
+<!-- فقط یک بار در کل صفحه، مثلاً در base.html یا dashboard.html -->
+<div class="modal fade" id="printOptionsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-print"></i> انتخاب آیتم‌های چاپ
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="print_invoice_code" value="">
+                <div class="alert alert-info small">
+                    <strong>کد:</strong> <span id="print_invoice_display"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="selectAllPrint">
+                    <label class="form-check-label fw-bold text-primary" for="selectAllPrint">انتخاب همه</label>
+                </div>
+                <hr>
+
+                <!-- فقط مجوز -->
+                <div id="printItemsWaiting">
+                    <div class="form-check mb-2">
+                        <input class="print-item" type="checkbox" value="license_pdf" id="print_license_pdf" checked>
+                        <label for="print_license_pdf">فرم مجوز (PDF)</label>
+                    </div>
+                </div>
+
+                <!-- قرارداد + مدارک -->
+                <div id="printItemsContracted" style="display: none;">
+                    <div class="form-check mb-2">
+                        <input class="print-item" type="checkbox" value="contract_pdf" id="print_contract_pdf">
+                        <label for="print_contract_pdf">قرارداد</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="print-item" type="checkbox" value="commission_imgs" id="print_commission">
+                        <label for="print_commission">مصوبه کمیسیون معاملات</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="print-item" type="checkbox" value="approval_imgs" id="print_approval">
+                        <label for="print_approval">مصوبه هیئت مدیره</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="print-item" type="checkbox" value="contract_imgs" id="print_contract_imgs">
+                        <label for="print_contract_imgs">تصاویر قرارداد</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="print-item" type="checkbox" value="check_imgs" id="print_check">
+                        <label for="print_check">تصویر چک تضمین</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">لغو</button>
+                <button type="button" class="btn btn-success" id="startPrinting">
+                    <i class="fas fa-print"></i> شروع چاپ
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

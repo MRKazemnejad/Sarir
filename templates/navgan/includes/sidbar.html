@@ -1,0 +1,189 @@
+{#<style>#}
+{#.nav-item.active > .nav-link,#}
+{#.nav-link:hover {#}
+{#    background-color: #f1f3f5;#}
+{#}#}
+{##}
+{##}
+{#</style>#}
+{##}
+{##}
+{##}
+{#<!--sidebar with scroll -->#}
+{#<aside class="sidebar-left border-right bg-white shadow" id="leftSidebar">#}
+{#    <a href="#" class="btn collapseSidebar toggle-btn d-lg-none text-muted ml-2 mt-3" data-toggle="toggle">#}
+{#        <i class="fe fe-x"><span class="sr-only"></span></i>#}
+{#    </a>#}
+{#    <nav class="vertnav navbar navbar-light">#}
+{#        <!-- nav bar -->#}
+{#        <div class="w-100 mb-4 d-flex">#}
+{#            <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="#">#}
+{#                <p class="text-muted nav-heading mt-4 mb-1">#}
+{#                    <span class="account">سامانه پایش ناوگان</span>#}
+{#                </p>#}
+{#            </a>#}
+{#        </div>#}
+{#        <ul class="navbar-nav flex-fill w-100 mb-2 account">#}
+{#            <li class="nav-item  {% if segment == 'mdashboard'%} active {% else %}{% endif %} mb-2">#}
+{#                <a class="nav-link" href="{% url 'navgan:managmentDashboard' %}" aria-expanded="false">#}
+{#                    <i class="fe fe-home fe-16"></i>#}
+{#                    <span class="ml-3 item-text">داشبورد مدیریتی</span><span class="sr-only">(current)</span>#}
+{#                </a>#}
+{#            </li>#}
+{##}
+{##}
+{##}
+{#            <li class="nav-item mb-2">#}
+{#                <a class="nav-link {% if segment in 'ddashboard' %}active{% else %}{% endif %}"#}
+{#                   href="">#}
+{#                    <i class="fe fe-cast fe-16"></i>#}
+{#                    <span class="ml-3 item-text">داشبورد روزانه</span>#}
+{#                </a>#}
+{#            </li>#}
+{##}
+{#            <li class="nav-item mb-2">#}
+{#                <a class="nav-link {% if segment in 'live' %}active{% else %}{% endif %}"#}
+{#                   href="">#}
+{#                    <i class="fe fe-file-text fe-16"></i>#}
+{#                    <span class="ml-3 item-text">کنترل لحظه ای ناوگان</span>#}
+{#                </a>#}
+{#            </li>#}
+{##}
+{#            <li class="nav-item mb-2">#}
+{#                <a class="nav-link {% if segment in 'report' %}active{% else %}{% endif %}"#}
+{#                   href="">#}
+{#                    <i class="fe fe-pie-chart fe-16"></i>#}
+{#                    <span class="ml-3 item-text">گزارشات</span>#}
+{#                </a>#}
+{#            </li>#}
+{#            <li class="nav-item mb-2">#}
+{#                <a class="nav-link {% if segment in 'msg' %}active{% else %}{% endif %}"#}
+{#                href="">#}
+{#                <i class="fe fe-calendar fe-16"></i>#}
+{#                <span class="ml-3 item-text">پیغام ها</span>#}
+{#                </a>#}
+{#            </li>#}
+{#            <li class="nav-item mb-2">#}
+{#                <a href=""#}
+{#                   class="nav-link {% if segment in 'settings' %} active{% else %} {% endif %}">#}
+{#                    <i class="fe fe-settings fe-16"></i>#}
+{#                    <span class="ml-3 item-text">تنظیمات</span>#}
+{#                </a>#}
+{#            </li>#}
+{##}
+{#        </ul>#}
+{#    </nav>#}
+{#</aside>#}
+{##}
+{##}
+
+
+
+
+{% load static %}
+
+<style>
+/* ===============================
+   Sidebar Active = Hover
+   =============================== */
+
+.sidebar-left .nav-link {
+    color: #6c757d;
+    border-radius: .375rem;
+    transition: all 0.2s ease;
+}
+
+/* hover */
+.sidebar-left .nav-link:hover {
+    background-color: #f1f3f5;
+    color: #212529;
+}
+
+/* active (ماندگار) */
+.sidebar-left .nav-item.active > .nav-link {
+    background-color: #f1f3f5 !important;
+    color: #212529 !important;
+    font-weight: 500;
+}
+
+/* icon */
+.sidebar-left .nav-link:hover i,
+.sidebar-left .nav-item.active > .nav-link i {
+    color: #212529 !important;
+}
+</style>
+
+<!-- ===============================
+     Sidebar
+     =============================== -->
+<aside class="sidebar-left border-right bg-white shadow" id="leftSidebar">
+
+    <a href="#" class="btn collapseSidebar toggle-btn d-lg-none text-muted ml-2 mt-3">
+        <i class="fe fe-x"></i>
+    </a>
+
+    <nav class="vertnav navbar navbar-light">
+
+        <!-- Logo / Title -->
+        <div class="w-100 mb-4 d-flex">
+            <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="#">
+                <p class="text-muted nav-heading mt-4 mb-1">
+                    <span class="account">سامانه پایش ناوگان</span>
+                </p>
+            </a>
+        </div>
+
+        <!-- Menu -->
+        <ul class="navbar-nav flex-fill w-100 mb-2 account">
+
+            <!-- Dashboard -->
+            <li class="nav-item mb-2 {% if segment == 'mdashboard' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'navgan:managmentDashboard' %}">
+                    <i class="fe fe-home fe-16"></i>
+                    <span class="ml-3 item-text">داشبورد مدیریتی</span>
+                </a>
+            </li>
+
+            <!-- Daily Dashboard -->
+            <li class="nav-item mb-2 {% if segment == 'ddashboard' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'navgan:dailyDashboard' %}">
+                    <i class="fe fe-cast fe-16"></i>
+                    <span class="ml-3 item-text">داشبورد روزانه</span>
+                </a>
+            </li>
+
+            <!-- Live Control -->
+            <li class="nav-item mb-2 {% if segment == 'live' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'navgan:fleetControl' %}">
+                    <i class="fe fe-file-text fe-16"></i>
+                    <span class="ml-3 item-text">کنترل لحظه‌ای ناوگان</span>
+                </a>
+            </li>
+
+            <!-- Reports -->
+            <li class="nav-item mb-2 {% if segment == 'report' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'navgan:reports' %}">
+                    <i class="fe fe-pie-chart fe-16"></i>
+                    <span class="ml-3 item-text">گزارشات</span>
+                </a>
+            </li>
+
+            <!-- Messages -->
+            <li class="nav-item mb-2 {% if segment == 'msg' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'navgan:messages_view' %}">
+                    <i class="fe fe-calendar fe-16"></i>
+                    <span class="ml-3 item-text">پیغام‌ها</span>
+                </a>
+            </li>
+
+            <!-- Settings -->
+            <li class="nav-item mb-2 {% if segment == 'settings' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'navgan:settings' %}">
+                    <i class="fe fe-settings fe-16"></i>
+                    <span class="ml-3 item-text">تنظیمات</span>
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+</aside>

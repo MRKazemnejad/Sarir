@@ -1,0 +1,168 @@
+
+.table-container {
+    max-height: 50vh;
+    overflow-y: auto;
+    position: relative;
+    width: 100%;
+    font-size: 1rem;
+}
+
+.table-container table {
+    width: 100%;
+    margin-bottom: 0;
+    table-layout: fixed;
+}
+
+
+.table-container thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 1;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table-container th,
+.table-container td {
+    text-align: center;
+    padding: 8px;
+    font-size: 0.7rem;
+}
+
+/* تنظیمات پرینت */
+@media print {
+    .table-container {
+        max-height: none !important;
+        overflow-y: visible !important;
+        position: static !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        top: 0 !important; /* اطمینان از شروع از بالا */
+    }
+
+    .table-container table {
+        table-layout: fixed !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .table-container thead th {
+        position: static !important; /* غیرفعال کردن sticky در پرینت */
+        background: #fff !important; /* جلوگیری از مشکلات پس‌زمینه */
+    }
+
+    .table-container th,
+    .table-container td {
+        padding: 5px !important;
+        font-size: 0.7rem !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-container {
+        max-height: 200px;
+    }
+
+    .table-container th,
+    .table-container td {
+        /*font-size: 14px;*/
+        font-size: 0.6rem;
+        padding: 6px;
+    }
+}
+
+ .modal-dialog {
+            max-width: 90%; /* عرض دلخواه */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .edit-icon {
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+
+        .edit-input {
+            display: none;
+            width: 100%;
+        }
+
+        .company-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+/*****************************************************************************************************/
+
+/* تنظیمات برای ردیف اول هدر */
+#table-1 thead tr:first-child th:nth-child(1) {
+    width: 30%; /* گروه 1: 5 ستون × 10% */
+}
+
+#table-1 thead tr:first-child th:nth-child(2) {
+    width: 30%; /* گروه 2: 3 ستون × 8% */
+}
+
+#table-1 thead tr:first-child th:nth-child(3) {
+    width: 20%; /* گروه 3: 3 ستون × 8% */
+}
+
+#table-1 thead tr:first-child th:nth-child(4) {
+    width: 8%; /* ستون آخر */
+}
+#table-1 thead tr:first-child th:nth-child(5) {
+    width: 8%; /* ستون آخر */
+}
+#table-1 thead tr:first-child th:nth-child(6) {
+    width: 8%; /* ستون آخر */
+}
+
+        #table-1 th:nth-child(1), #table-1 td:nth-child(1) { /* ردیف */
+            width: 6%;
+        }
+        #table-1 th:nth-child(2), #table-1 td:nth-child(2) { /* پارت نامبر */
+            width: 10%;
+        }
+        #table-1 th:nth-child(3), #table-1 td:nth-child(3) { /* پارت نامبر/شرح کالا */
+            width: 10%;
+        }
+        #table-1 th:nth-child(4), #table-1 td:nth-child(4) { /* تعداد */
+            width: 8%;
+        }
+        #table-1 th:nth-child(5), #table-1 td:nth-child(5) { /* واحد */
+            width: 8%;
+        }
+        #table-1 th:nth-child(6), #table-1 td:nth-child(6) { /* شرکت 1 */
+            width: 10%;
+        }
+        #table-1 th:nth-child(7), #table-1 td:nth-child(7) { /* شرکت 2 */
+            width: 10%;
+        }
+        #table-1 th:nth-child(8), #table-1 td:nth-child(8) { /* شرکت 3 */
+            width: 10%;
+        }
+        #table-1 th:nth-child(9), #table-1 td:nth-child(9) { /* شرکت (سابقه خرید) */
+            width: 10%;
+        }
+        #table-1 th:nth-child(10), #table-1 td:nth-child(10) { /* تاریخ */
+            width: 10%;
+        }
+        #table-1 th:nth-child(11), #table-1 td:nth-child(11) { /* قیمت */
+            width: 10%;
+        }
+        #table-1 th:nth-child(12), #table-1 td:nth-child(12) { /* درصد تغییر قیمت */
+            width: 5%;
+        }
+        #table-1 th:nth-child(13), #table-1 td:nth-child(13) { /* برنده */
+            width: 5%;
+        }
+        #table-1 th:nth-child(14), #table-1 td:nth-child(14) { /* عملیات */
+            width: 5%;
+        }

@@ -1,0 +1,540 @@
+   document.getElementById('btnSearch').addEventListener('click', async function () {
+                const dateInput = document.querySelector('.top-filter-date').value.trim();
+                if (!dateInput || !/^\d{4}\/\d{2}\/\d{2}$/.test(dateInput)) {
+                    showAlert('تاریخ نامعتبر', 'فرمت: ۱۴۰۴/۰۵/۲۲', 'warning');
+                    return;
+                }
+
+                Swal.fire({title: 'در حال بارگذاری...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+
+                try {
+                    const url = `/get-dashboard-data/?date=${encodeURIComponent(dateInput)}`;
+                    console.log("درخواست:", url);
+
+                    const response = await fetch(url);
+                    console.log("وضعیت:", response.status);
+
+                    if (!response.ok) {
+                        const text = await response.text();
+                        throw new Error(`سرور: ${response.status} → ${text.slice(0, 200)}`);
+                    }
+
+                    const data = await response.json();
+                    console.log("داده دریافتی:", data);
+
+                    // ────────────────────────────────
+                    // آپدیت کارت‌های بالا
+                    // ────────────────────────────────
+                    document.getElementById('stat-puretonkilo').innerHTML =
+                        `تن کیلومتر خالص<br>${Math.round(data.cards.puretonkilo).toLocaleString('fa-IR')}`;
+
+                    document.getElementById('stat-loadedtonkilo').innerHTML =
+                        `تن کیلومتر باردار<br>${Math.round(data.cards.loadedtonkilo).toLocaleString('fa-IR')}`;
+
+                    document.getElementById('stat-confidence').innerHTML =
+                        `ضریب اطمینان<br>%${Math.round(data.cards.confidence_factor)}`;
+
+                    document.getElementById('stat-availability').innerHTML =
+                        `آماده‌کاری<br>%${Math.round(data.cards.availability)}`;
+
+                    document.getElementById('stat-efficiency').innerHTML =
+                        `بهره وری<br>${Math.round(data.cards.efficiency).toLocaleString('fa-IR')}`;
+
+                    // ────────────────────────────────
+                    // آپدیت میانگین تن کیلومتر پایین نمودار اصلی
+                    // ────────────────────────────────
+                    document.getElementById('avg-last-year-tonkilo').textContent =
+                        Math.round(data.averages.last_avg_tonkilo).toLocaleString('fa-IR');
+
+                    document.getElementById('avg-this-year-tonkilo').textContent =
+                        Math.round(data.averages.current_avg_tonkilo).toLocaleString('fa-IR');
+
+                    // ────────────────────────────────
+                    // آپدیت مقادیر کوچک پایین کارت‌ها
+                    // ────────────────────────────────
+                    document.getElementById('eff-last-year').textContent = Math.round(data.averages.eff_last_year);
+                    document.getElementById('eff-this-month').textContent = Math.round(data.averages.eff_this_month);
+
+                    document.getElementById('ava-last-year').textContent = Math.round(data.averages.avail_last_year);
+                    document.getElementById('ava-this-month').textContent = Math.round(data.averages.avail_this_month);
+
+                    document.getElementById('conf-last-year').textContent = Math.round(data.averages.conf_last_year);
+                    document.getElementById('conf-this-month').textContent = Math.round(data.averages.conf_this_month);
+
+                    // آپدیت عنوان
+                    document.querySelector('.top-filter-title').textContent = data.selected_date;
+
+                    // آپدیت نمودارها (اگر تابع‌ها رو تعریف کردی)
+                    {#if (data.bar) updateBarChart(data.bar);#}
+                    {#if (data.line) updateLineCharts(data.line);#}
+
+                    Swal.close();
+                    showAlert('با موفقیت بارگذاری شد', `داده‌های ${data.selected_date} نمایش داده شد`, 'success', 2200);
+
+                } catch (err) {
+                    Swal.close();
+                    console.error("خطا:", err);
+                    showAlert('خطا', `جزئیات: ${err.message}<br>کنسول رو چک کن`, 'error', 0);
+                }
+            });
+
+
+
+
+
+{% block javascripts %}
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            function formatNumber(value) {
+                if (value === null || value === undefined) return "";
+                return Math.round(value).toLocaleString('en-US');
+            }
+
+            function buildLegend(chartId, yearLast, yearThis) {
+
+                const el = document.getElementById("legend-" + chartId);
+                if (!el) return;
+
+                el.innerHTML = `
+                    <div class="legend-item" data-chart="${chartId}" data-index="1">
+                        <span class="legend-color legend-last"></span>
+                        ${yearLast}
+                    </div>
+
+                    <div class="legend-item" data-chart="${chartId}" data-index="0">
+                        <span class="legend-color legend-this"></span>
+                        ${yearThis}
+                    </div>
+                `;
+            }
+
+            const regionColors = {
+                19: "#F6F600", 21: "#FBDA66", 18: "#E0B801", 25: "#B4FE69",
+                10: "#33CC33", 11: "#00963F", 12: "#0A6A11", 17: "#00ccff",
+                8: "#3568FF", 16: "#0001FD", 23: "#6A1918", 20: "#C30101",
+                22: "#FB544E", 13: "#FBD2FE", 14: "#FA9FCA", 15: "#CA64A6",
+                9: "#9C34FF", 26: "#B0007D", 30: "#5E045B", 29: "#C5E3B4",
+                28: "#C8BFE7", 24: "#264478"
+            };
+
+            function showAlert(title, text, icon = 'info', timer = 3000) {
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: icon,
+                    confirmButtonText: 'باشه',
+                    confirmButtonColor: '#3085d6',
+                    timer: timer,
+                    timerProgressBar: true,
+
+                    // مهم: این‌ها باعث می‌شن وسط صفحه باشه
+                    position: 'center',               // پیش‌فرض همینه، ولی صریح بنویس
+                    backdrop: true,                   // پس‌زمینه تیره تمام صفحه (overlay)
+                    allowOutsideClick: true,          // کلیک بیرون → ببنده (اختیاری false کن اگر نخوای)
+                    allowEscapeKey: true,
+
+                    // اگر می‌خوای خیلی بزرگ و وسط‌نما باشه (نه toast)
+                    toast: false,                     // حتماً false → modal معمولی می‌شه
+
+                    customClass: {
+                        popup: 'farsi-swal centered-swal'   // کلاس سفارشی برای استایل بیشتر
+                    }
+                });
+            }
+
+
+            // =====================================================
+            //  Chart.js plugin -> بک گراند سبز داخل ناحیه نمودار
+            // =====================================================
+            const chartAreaBG = {
+                id: 'chartAreaBG',
+                beforeDraw(chart, args, opts) {
+                    const {ctx, chartArea} = chart;
+                    if (!chartArea) return;
+
+                    ctx.save();
+                    ctx.fillStyle = opts.color || '#dcefed';
+                    ctx.fillRect(
+                        chartArea.left,
+                        chartArea.top,
+                        chartArea.right - chartArea.left,
+                        chartArea.bottom - chartArea.top
+                    );
+                    ctx.restore();
+                }
+            };
+
+            // =====================================================
+            // 1️⃣ BAR CHART (Apex)
+            // =====================================================
+            fetch("/daily-chart")
+                .then(r => r.json())
+                .then(data => buildBarChart(data));
+
+            function buildBarChart(data) {
+
+                const regionColors = {
+                    19: "#F6F600", 21: "#FBDA66", 18: "#E0B801", 25: "#B4FE69",
+                    10: "#33CC33", 11: "#00963F", 12: "#0A6A11", 17: "#00ccff",
+                    8: "#3568FF", 16: "#0001FD", 23: "#6A1918", 20: "#C30101",
+                    22: "#FB544E", 13: "#FBD2FE", 14: "#FA9FCA", 15: "#CA64A6",
+                    9: "#9C34FF", 26: "#B0007D", 30: "#5E045B", 29: "#C5E3B4",
+                    28: "#C8BFE7", 24: "#264478"
+                };
+
+                const series = data.regions.map(r => ({name: r.name, data: r.data}));
+                const colors = data.regions.map(r => regionColors[r.code]);
+
+                new ApexCharts(document.querySelector("#barChart1"), {
+                    chart: {type: 'bar', height: 350, stacked: true, background: '#f4f6fb'},
+                    series: series,
+                    colors: colors,
+                    dataLabels: {enabled: false},
+                    xaxis: {
+                        categories: data.loco_name,
+                        labels: {rotate: -45, rotateAlways: true, offsetY: 12, offsetX: -8}
+                    },
+                    yaxis: {
+                        max: data.max_number,
+                        labels: {formatter: (v) => formatNumber(v)}
+                    },
+                    legend: {position: 'top', fontSize: '11px'}
+                }).render();
+            }
+
+            // =====================================================
+            // 2️⃣ MAIN LINE (Apex)
+            // =====================================================
+            fetch("/daily-chartline/")
+                .then(r => r.json())
+                .then(data => {
+
+                    buildLegend("efficiencyChart", data.last_year, data.year);
+                    buildLegend("availabilityChart", data.last_year, data.year);
+                    buildLegend("confidenceChart", data.last_year, data.year);
+
+
+                    buildMainChart(data);
+                    buildSmallCharts(data);
+
+                });
+
+            function buildMainChart(data) {
+
+                buildLegend("mainChart", data.last_year, data.year);
+
+                const ctx = document.getElementById("mainChart");
+
+                charts["mainChart"] = new Chart(ctx, {
+                    type: 'line',
+                    plugins: [chartAreaBG],
+                    data: {
+                        labels: data.days,
+                        datasets: [
+                            {
+                                label: 'امسال',
+                                data: data.pure.this,
+                                borderColor: '#546e7a',
+                                borderWidth: 3,
+                                tension: 0.35,
+
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: '#546e7a'
+                            },
+                            {
+                                label: 'سال قبل',
+                                data: data.pure.last,
+                                borderColor: '#f3b21a',
+                                borderWidth: 2,
+                                tension: 0.35,
+
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: '#f3b21a'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        layout: {
+                            padding: {left: 15, right: 15, top: 10, bottom: 5}
+                        },
+
+                        maintainAspectRatio: false,
+                        interaction: {mode: 'index', intersect: false},
+                        plugins: {
+                            legend: {display: false},
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => ctx.dataset.label + " : " + formatNumber(ctx.parsed.y)
+                                }
+                            },
+                            chartAreaBG: {color: '#dcefed'}
+                        },
+                        scales: {
+                            x: {
+                                offset: true,
+                                ticks: {
+                                    padding: 18,
+                                    maxRotation: 0,
+                                    autoSkip: true,
+                                    maxTicksLimit: 15
+                                },
+                                grid: {color: 'rgba(0,0,0,0.05)'}
+                            },
+                            y: {
+                                grace: '8%',
+                                ticks: {
+                                    padding: 8,
+                                    callback: (v) => formatNumber(v)
+                                },
+                                grid: {color: 'rgba(0,0,0,0.08)'}
+                            }
+                        }
+
+                    }
+                });
+            }
+
+
+            // =====================================================
+            // 3️⃣ SMALL CHARTS (Chart.js)
+            // =====================================================
+            const charts = {};
+
+            function buildSmallCharts(data) {
+                buildSmallChart("efficiencyChart", data.eff.this, data.eff.last, data.days);
+                buildSmallChart("availabilityChart", data.ava.this, data.ava.last, data.days);
+                buildSmallChart("confidenceChart", data.conf.this, data.conf.last, data.days);
+
+            }
+
+            function buildSmallChart(id, thisYear, lastYear, days) {
+
+                const ctx = document.getElementById(id);
+                if (!ctx) return;
+
+                charts[id] = new Chart(ctx, {
+                    type: 'line',
+                    plugins: [chartAreaBG],
+                    data: {
+                        labels: days,
+                        datasets: [
+                            {
+                                label: 'امسال',
+                                data: thisYear,
+                                borderColor: '#546e7a',
+                                backgroundColor: '#546e7a',
+                                borderWidth: 3,
+                                tension: 0.35,
+
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointBorderWidth: 2,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#546e7a'
+                            },
+                            {
+                                label: 'سال قبل',
+                                data: lastYear,
+                                borderColor: '#f3b21a',
+                                backgroundColor: '#f3b21a',
+                                borderWidth: 2,
+                                tension: 0.35,
+
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointBorderWidth: 2,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#f3b21a'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: {display: false},
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => ctx.dataset.label + " : " + Math.round(ctx.parsed.y) + " %"
+                                }
+                            },
+                            chartAreaBG: {color: '#dcefed'}
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    padding: 20,
+                                    callback: (v, i) => days[i] % 2 === 1 ? days[i] : "",
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                },
+                                grid: {color: 'rgba(0,0,0,0.08)'}
+                            },
+                            y: {
+                                ticks: {callback: (v) => Math.round(v) + "%"},
+                                grid: {color: 'rgba(0,0,0,0.08)'}
+                            }
+                        }
+                    }
+                });
+            }
+
+
+            // =====================================================
+            // 4️⃣ CHECKBOX CONTROL
+            // =====================================================
+            document.querySelectorAll('.toggleAvg').forEach(cb => {
+                cb.addEventListener('change', function () {
+
+                    const chart = charts[this.dataset.target];
+                    if (!chart) return;
+
+                    const index = this.dataset.series === "thisYear" ? 0 : 1;
+                    chart.data.datasets[index].hidden = !this.checked;
+                    chart.update();
+                });
+            });
+
+
+            // =====================================================
+            // LEGEND CLICK (باید داخل DOMContentLoaded باشد)
+            // =====================================================
+            document.addEventListener("click", function (e) {
+
+                const item = e.target.closest(".legend-item");
+                if (!item) return;
+
+                const chartId = item.dataset.chart;
+                const datasetIndex = parseInt(item.dataset.index);
+
+                const chart = charts[chartId];
+                if (!chart) return;
+
+                const meta = chart.getDatasetMeta(datasetIndex);
+
+                meta.hidden = meta.hidden === null
+                    ? !chart.data.datasets[datasetIndex].hidden
+                    : null;
+
+                item.classList.toggle("off");
+                chart.update();
+            });
+
+
+            {#***************************************************************************************************#}
+
+            // تابع آپدیت نمودار میله‌ای Apex
+            function updateBarChart(barData) {
+                const chart = ApexCharts.getChartByID("barChart1");
+                if (chart) {
+                    chart.updateOptions({
+                        xaxis: {categories: barData.loco_name},
+                        series: barData.regions.map(r => ({name: r.name, data: r.data})),
+                        colors: barData.regions.map(r => regionColors[r.code] || '#775DD0'),
+                        yaxis: {max: barData.max_number}
+                    });
+                } else {
+                    console.warn("نمودار Apex هنوز ساخته نشده");
+                }
+            }
+
+                // تابع آپدیت نمودارهای خطی Chart.js
+            function updateLineCharts(lineData) {
+                const days = lineData.days;
+
+                // main chart
+                if (charts.mainChart) {
+                    charts.mainChart.data.labels = days;
+                    charts.mainChart.data.datasets[0].data = lineData.pure.this;
+                    charts.mainChart.data.datasets[1].data = lineData.pure.last;
+                    charts.mainChart.update();
+                }
+
+                // سه نمودار کوچک
+                const smallMap = {
+                    efficiencyChart: 'eff',
+                    availabilityChart: 'ava',
+                    confidenceChart: 'conf'
+                };
+
+                Object.keys(smallMap).forEach(id => {
+                    const chart = charts[id];
+                    const key = smallMap[id];
+                    if (chart) {
+                        chart.data.labels = days;
+                        chart.data.datasets[0].data = lineData[key].this;
+                        chart.data.datasets[1].data = lineData[key].last;
+                        chart.update();
+                    }
+                });
+
+                // آپدیت legendها (سال جاری و پارسال)
+                buildLegend("mainChart", lineData.last_year, lineData.year);
+                buildLegend("efficiencyChart", lineData.last_year, lineData.year);
+                buildLegend("availabilityChart", lineData.last_year, lineData.year);
+                buildLegend("confidenceChart", lineData.last_year, lineData.year);
+            }
+
+
+         document.getElementById('btnSearch').addEventListener('click', async function () {
+    const dateInput = document.querySelector('.top-filter-date').value.trim();
+    if (!dateInput || !/^\d{4}\/\d{2}\/\d{2}$/.test(dateInput)) {
+        showAlert('تاریخ نامعتبر', 'فرمت: ۱۴۰۴/۰۵/۲۲', 'warning');
+        return;
+    }
+
+    Swal.fire({title: 'در حال بارگذاری...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+
+    try {
+        const url = `/get-dashboard-data/?date=${encodeURIComponent(dateInput)}`;
+        console.log("درخواست:", url);
+
+        const response = await fetch(url);
+        console.log("وضعیت پاسخ:", response.status, response.statusText);
+
+        if (!response.ok) {
+            const text = await response.text();
+            console.log("متن خطای سرور:", text);
+            throw new Error(`سرور: ${response.status} - ${text.slice(0,300)}`);
+        }
+
+        const data = await response.json();
+        console.log("داده کامل:", data);
+        console.log("کلیدهای averages:", Object.keys(data.averages || {}));
+        console.log("last_avg_tonkilo:", data.averages?.last_avg_tonkilo);
+        console.log("current_avg_tonkilo:", data.averages?.current_avg_tonkilo);
+
+        // فقط آپدیت کارت‌ها (برای تست)
+        document.getElementById('stat-puretonkilo').innerHTML = `تن کیلومتر خالص<br>تست: ${data.cards?.puretonkilo || '؟'}`;
+
+        Swal.close();
+        showAlert('تست موفق', 'داده دریافت شد – کنسول رو چک کن', 'success', 3000);
+
+    } catch (err) {
+        Swal.close();
+        console.error("خطای کلی:", err);
+        showAlert('خطا', `جزئیات: ${err.message}`, 'error', 0);
+    }
+});
+
+
+        });
+
+
+    </script>
+
+{% endblock javascripts %}

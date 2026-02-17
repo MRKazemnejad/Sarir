@@ -1,0 +1,107 @@
+<!-- templates/contract/print/selected_documents_print.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <title>مدارک انتخاب‌شده - {{ license.invoice_code }}</title>
+
+    <style>
+        body { margin: 0; padding: 0; background: white; font-family: Tahoma, 'B Nazanin', sans-serif; }
+        .doc-page { page-break-after: always; min-height: 297mm; display: flex; flex-direction: column; }
+        .doc-title {
+            text-align: center; padding: 20px; background: #003087; color: white;
+            font-size: 1.8rem; margin: 0; border-radius: 0 0 15px 15px;
+        }
+        .doc-content { flex: 1; padding: 30px; display: flex; justify-content: center; align-items: center; }
+        .doc-frame {
+            width: 100%; max-width: 800px; height: 85vh; border: 4px solid #003087;
+            border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .doc-frame img, .doc-frame iframe { width: 100%; height: 100%; border: none; }
+        .no-file { color: #999; font-size: 1.6rem; }
+        @page { margin: 1cm; size: A4 portrait; }
+        @media print { body, html { background: white !important; } }
+    </style>
+</head>
+<body>
+
+    <!-- هدر مشترک -->
+    {% include 'contract/includes/printHeader.html' with now=today %}
+
+    <!-- فقط فایل‌های انتخاب‌شده نمایش داده میشن -->
+
+    {% if show_license_pdf and license_pdf %}
+        <div class="doc-page">
+            <div class="doc-title">فرم مجوز خرید - {{ license.invoice_code }}</div>
+            <div class="doc-content">
+                <div class="doc-frame">
+                    <iframe src="{{ license_pdf.url }}" type="application/pdf"></iframe>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if show_contract_imgs %}
+        {% for img in contract_imgs %}
+            <div class="doc-page">
+                <div class="doc-title">تصویر قرارداد - {{ license.invoice_code }}</div>
+                <div class="doc-content">
+                    <div class="doc-frame">
+                        <img src="{{ img.image.url }}" alt="قرارداد">
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if show_commission %}
+        {% for img in commission_imgs %}
+            <div class="doc-page">
+                <div class="doc-title">مصوبه کمیسیون معاملات</div>
+                <div class="doc-content">
+                    <div class="doc-frame">
+                        <img src="{{ img.image.url }}" alt="کمیسیون">
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if show_approval %}
+        {% for img in approval_imgs %}
+            <div class="doc-page">
+                <div class="doc-title">مصوبه هیئت مدیره</div>
+                <div class="doc-content">
+                    <div class="doc-frame">
+                        <img src="{{ img.image.url }}" alt="هیئت مدیره">
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if show_check %}
+        {% for img in check_imgs %}
+            <div class="doc-page">
+                <div class="doc-title">تصویر چک تضمین</div>
+                <div class="doc-content">
+                    <div class="doc-frame">
+                        <img src="{{ img.image.url }}" alt="چک">
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- اگر هیچی انتخاب نشده بود -->
+    {% if not show_license_pdf and not show_contract_imgs and not show_commission and not show_approval and not show_check %}
+        <div class="doc-page">
+            <div class="doc-content">
+                <div class="no-file">هیچ مدرکی انتخاب نشده است.</div>
+            </div>
+        </div>
+    {% endif %
+
+</body>
+</html>

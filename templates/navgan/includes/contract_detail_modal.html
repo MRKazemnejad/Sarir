@@ -1,0 +1,221 @@
+{% load humanize %}
+
+<div class="container-fluid p-3">
+    <form class="border rounded shadow-sm bg-white">
+
+        <!-- بخش اطلاعات اصلی -->
+        <fieldset class="border-bottom pb-4 mb-4">
+            <legend class="w-auto px-3 text-primary fw-bold fs-5">
+                <i class="fas fa-file-contract"></i> اطلاعات اصلی قرارداد
+            </legend>
+            <div class="row g-3 fs-6">
+                <div class="col-12 col-md-6">
+                    <div class="row">
+                        <label class="col-4 col-form-label fw-bold">کد:</label>
+                        <div class="col-8">
+                            <span class="badge bg-info fs-6">{{ c.contract_code }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="row">
+                        <label class="col-4 col-form-label fw-bold">عنوان:</label>
+                        <div class="col-8 pt-2">
+                            {{ c.contract_title|truncatechars:50 }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="row">
+                        <label class="col-4 col-form-label fw-bold">پیمانکار:</label>
+                        <div class="col-8 pt-2">
+                            {{ c.contract_contractor }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="row">
+                        <label class="col-4 col-form-label fw-bold">مبلغ:</label>
+                        <div class="col-8">
+                            <strong class="text-success">{{ c.contract_price|default:"0"|intcomma }}</strong> ریال
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="row">
+                        <label class="col-4 col-form-label fw-bold">شروع:</label>
+                        <div class="col-8 pt-2">
+                            {{ c.contract_startdate|date:"Y/m/d" }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="row">
+                        <label class="col-4 col-form-label fw-bold">پایان:</label>
+                        <div class="col-8 pt-2">
+                            {{ c.contract_enddate|date:"Y/m/d" }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="row">
+                        <label class="col-4 col-form-label fw-bold">مدت:</label>
+                        <div class="col-8 pt-2">
+                            {{ c.contract_period|default:"-" }} ماه
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="row">
+                        <label class="col-4 col-form-label fw-bold">وضعیت:</label>
+                        <div class="col-8">
+                            <span class="badge bg-{% if c.contract_status == c.STATUS_NEWRUN %}success{% elif 'END' in c.contract_status %}danger{% elif 'PAUSE' in c.contract_status %}warning{% else %}primary{% endif %} fs-6">
+                                {{ c.get_contract_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- بخش مجوز و ابلاغ -->
+        <fieldset class="border-bottom pb-4 mb-4">
+            <legend class="w-auto px-3 text-secondary fw-bold fs-5">
+                <i class="fas fa-certificate"></i> مجوز و ابلاغ
+            </legend>
+            <div class="row g-3 fs-6">
+                <div class="col-12">
+                    <div class="row">
+                        <label class="col-3 col-lg-2 col-form-label fw-bold">مجوز:</label>
+                        <div class="col-9 col-lg-10 pt-2">
+                            <span class="badge bg-secondary">{{ license.invoice_code|default:"-" }}</span> -
+                            {{ license.subject|default:"-"|truncatechars:60 }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="row">
+                        <label class="col-3 col-lg-2 col-form-label fw-bold">واحدهای ابلاغ‌شده:</label>
+                        <div class="col-9 col-lg-10 pt-2">
+                            {% for unit in units %}
+                                <span class="badge bg-outline-primary me-1 fs-7">{{ unit.unit_name }}</span>
+                            {% empty %}
+                                <span class="text-muted">-</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="row">
+                        <label class="col-3 col-lg-2 col-form-label fw-bold">دوره مالی:</label>
+                        <div class="col-9 col-lg-10">
+                            <strong>{{ c.current_period.name|default:"نامشخص" }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- الحاقیه‌ها -->
+        {% if appendices %}
+        <fieldset class="border-bottom pb-4 mb-4">
+            <legend class="w-auto px-3 text-warning fw-bold fs-5">
+                <i class="fas fa-paperclip"></i> الحاقیه‌ها ({{ appendices.count }})
+            </legend>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">شماره</th>
+                            <th scope="col">نوع</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in appendices %}
+                        <tr>
+                            <td>{{ app.appendix_code }}</td>
+                            <td>
+                                <span class="badge bg-warning text-dark">{{ app.get_appendix_type_display }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+        {% endif %}
+
+        <!-- فاکتورها -->
+        {{ invoices|yesno:"<fieldset class=\"border-bottom pb-4 mb-4\">,<fieldset class=\"pb-4 mb-4\">" }}
+            {% if invoices %}
+            <legend class="w-auto px-3 text-success fw-bold fs-5">
+                <i class="fas fa-file-invoice-dollar"></i> فاکتورها ({{ invoices.count }})
+            </legend>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">کد</th>
+                            <th scope="col">مبلغ</th>
+                            <th scope="col">تاریخ</th>
+                            <th scope="col">وضعیت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inv in invoices %}
+                        <tr>
+                            <td>{{ inv.invoice_code }}</td>
+                            <td>{{ inv.final_total|intcomma }}</td>
+                            <td>{{ inv.invoice_date|date:"m/d" }}</td>
+                            <td>
+                                <span class="badge bg-{% if inv.payment_status == 'paid' %}success{% else %}danger{% endif %} fs-7">
+                                    {{ inv.get_payment_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            </fieldset>
+            {% endif %}
+
+        <!-- رسیدها -->
+        {% if receipts %}
+        <fieldset class="pb-4 mb-4">
+            <legend class="w-auto px-3 text-primary fw-bold fs-5">
+                <i class="fas fa-receipt"></i> رسیدهای پرداخت ({{ receipts.count }})
+            </legend>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">کد</th>
+                            <th scope="col">بابت</th>
+                            <th scope="col">مبلغ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rec in receipts %}
+                        <tr>
+                            <td>{{ rec.receipt_code }}</td>
+                            <td>{{ rec.get_payment_for_display }}</td>
+                            <td class="{% if rec.amount > 0 %}text-success{% else %}text-danger{% endif %}">
+                                {{ rec.amount|intcomma }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+        {% endif %}
+
+        <!-- دکمه بستن -->
+        <div class="text-center mt-4">
+            <button type="button" class="btn btn-secondary px-5" data-dismiss="modal">
+                <i class="fas fa-times me-2"></i> بستن
+            </button>
+        </div>
+    </form>
+</div>

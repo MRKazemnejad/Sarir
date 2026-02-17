@@ -1,0 +1,194 @@
+
+{% extends "navgan/base/base.html" %}
+{% block title %}اطلاعات لکوموتیو {{ number }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    fieldset {
+        border: 1.5px solid #fde68a;
+        border-radius: .9rem;
+        padding: 1.2rem;
+        margin-bottom: 1.5rem;
+        background: #fff;
+        box-shadow: 0 4px 14px rgba(0,0,0,.05);
+    }
+
+    legend {
+        padding: .3rem 1rem;
+        font-weight: 900;
+        font-size: 1rem;
+        background: #facc15;
+        color: #111;
+        border-radius: .6rem;
+    }
+
+    .loco-number {
+        font-size: 2.4rem;
+        font-weight: 900;
+        text-align: center;
+        margin: .5rem 0 1.2rem;
+        color: #111827;
+    }
+
+    .page-box {
+        background: #f9fafb;
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: .7rem 1.8rem;
+        margin-top: .6rem;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        gap: .5rem;
+        padding-bottom: .3rem;
+        border-bottom: 1px dashed #e5e7eb;
+        font-weight: 700;
+    }
+
+    .info-label {
+        color: #374151;
+    }
+
+    .info-value {
+        color: #111827;
+        font-weight: 800;
+    }
+
+    .action-buttons {
+        margin-top: 1.5rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-back {
+        background: #e5e7eb;
+        color: #111827;
+        font-weight: 800;
+        padding: .6rem 1.6rem;
+        border-radius: .7rem;
+        text-decoration: none;
+        transition: all .25s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,.08);
+        cursor: pointer;
+    }
+
+    .btn-back:hover {
+        background: #d1d5db;
+        transform: translateY(-2px);
+    }
+
+    .btn-wagon {
+        background: #f59e0b;
+        color: #111;
+    }
+
+    @media (max-width: 576px) {
+        .loco-number {
+            font-size: 1.8rem;
+        }
+
+        .info-item {
+            font-size: .9rem;
+        }
+
+        .action-buttons a {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+    <div class="page-box">
+
+        <div class="loco-number">{{ loco.number }}</div>
+
+        <!-- اطلاعات لکوموتیو -->
+        <fieldset>
+            <legend>اطلاعات لکوموتیو</legend>
+            <div class="info-grid">
+                <div class="info-item"><span class="info-label">ناحیه</span><span class="info-value text-primary">{{ loco.region }}</span></div>
+                <div class="info-item"><span class="info-label">ایستگاه</span><span class="info-value text-primary">{{ loco.station }}</span></div>
+                <div class="info-item"><span class="info-label">وضعیت</span><span class="info-value text-primary">{{ loco.status }}</span></div>
+                <div class="info-item"><span class="info-label">تاریخ ورود</span><span class="info-value text-primary">{{ loco.entry_date }}</span></div>
+                <div class="info-item"><span class="info-label">ساعت ورود</span><span class="info-value text-primary">{{ loco.entry_time }}</span></div>
+                <div class="info-item"><span class="info-label">تاریخ خروج</span><span class="info-value text-primary">{{ loco.exit_date }}</span></div>
+                <div class="info-item"><span class="info-label">ساعت خروج</span><span class="info-value text-primary">{{ loco.exit_time }}</span></div>
+                <div class="info-item"><span class="info-label"> مدت توقف(دقیقه)</span><span class="info-value text-primary">{{ loco.stop_time }}</span></div>
+            </div>
+        </fieldset>
+
+        <!-- اطلاعات قطار -->
+        <fieldset>
+            <legend>اطلاعات قطار</legend>
+            <div class="info-grid">
+                <div class="info-item"><span class="info-label">شماره قطار</span><span class="info-value text-primary">{{ loco.train_no }}</span></div>
+                <div class="info-item"><span class="info-label">مبدا</span><span class="info-value text-primary">{{ loco.origin }}</span></div>
+                <div class="info-item"><span class="info-label">مقصد</span><span class="info-value text-primary">{{ loco.destination }}</span></div>
+                <div class="info-item"><span class="info-label">تاریخ تشکیل</span><span class="info-value text-primary">{{ loco.formation_date }}</span></div>
+                <div class="info-item"><span class="info-label">ساعت تشکیل</span><span class="info-value text-primary">{{ loco.formation_time }}</span></div>
+                <div class="info-item"><span class="info-label">وزن</span><span class="info-value text-primary">{{ loco.weight }}</span></div>
+                <div class="info-item"><span class="info-label">نوع</span><span class="info-value text-primary">{{ loco.type }}</span></div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+    <legend>اطلاعات لکوموتیوران</legend>
+
+    <div class="info-grid">
+        {% for d in drivers %}
+            <div class="info-item">
+                <span class="info-label">نام لکوموتیوران {{ d.index }}</span>
+                <span class="info-value text-primary">{{ d.name }}</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">کد لکوموتیوران {{ d.index }}</span>
+                <span class="info-value text-primary">{{ d.code }}</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">سمت</span>
+                <span class="info-value text-primary">{{ d.role }}</span>
+            </div>
+        {% empty %}
+            <div class="info-item">
+                <span class="info-value text-muted">اطلاعاتی ثبت نشده</span>
+            </div>
+        {% endfor %}
+    </div>
+</fieldset>
+
+
+
+        <!-- اطلاعات بار -->
+        <fieldset>
+            <legend>اطلاعات بار</legend>
+            <div class="info-grid">
+                <div class="info-item"><span class="info-label">تعداد واگن</span><span class="info-value text-primary">{{ loco.wagon_count }}</span></div>
+                <div class="info-item"><span class="info-label">باردار / خالی</span><span class="info-value text-primary">{{ loco.loaded_empty }}</span></div>
+                <div class="info-item"><span class="info-label">ترانزیت</span><span class="info-value text-primary">{{ loco.transit_wagon }}</span></div>
+                <div class="info-item"><span class="info-label">واگن بدون برنامه</span><span class="info-value text-primary">{{ loco.no_plan }}</span></div>
+            </div>
+        </fieldset>
+
+        <div class="action-buttons">
+            <a href="{% url 'navgan:wagon_detail' loco.number %}" class="btn-back btn-wagon text-decoration-none">جزئیات واگن</a>
+            <a class="btn-back" onclick="history.back()">بازگشت</a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+

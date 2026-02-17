@@ -1,0 +1,58 @@
+
+<script>
+    function generateHeader() {
+        // فرض می‌کنیم نام کاربر لاگین شده در متغیر window.loggedInUser ذخیره شده است
+        const loggedInUser = window.loggedInUser || 'کاربر ناشناس';
+
+        // دریافت تاریخ و ساعت فعلی به فرمت فارسی
+        const now = new Date();
+        const options = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        };
+        const formatter = new Intl.DateTimeFormat('fa-IR', options);
+        const dateTime = formatter.format(now);
+
+        return `
+        <style>
+            .header-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+                padding: 10px;
+                border: 1px solid #000;
+                border-radius: 10px;
+                background-color: #f9f9f9;
+                font-family: 'B Yekan', sans-serif;
+            }
+            .logo { max-height: 50px; }
+            .user-info, .date-time { font-size: 0.9em; font-family: 'B Yekan', sans-serif; }
+        </style>
+        <div class="header-container">
+            <div class="date-time">تاریخ و ساعت: ${dateTime}</div>
+            <div class="user-info">کاربر: ${loggedInUser}</div>
+            <img src="/static/img/logo/logo.png" alt="Company Logo" class="logo">
+        </div>
+    `;
+    }
+
+    // مهم: این خط باعث می‌شه وقتی فایل اینکلود شد، خودکار اجرا بشه
+document.addEventListener('DOMContentLoaded', function() {
+    // فقط یک بار اجرا بشه
+    if (window.headerGenerated) return;
+    window.headerGenerated = true;
+
+    // هدر رو بساز و بالای صفحه بذار
+    const headerHtml = generateHeader();
+    const div = document.createElement('div');
+    div.innerHTML = headerHtml;
+    document.body.insertBefore(div, document.body.firstChild);
+});
+
+
+</script>

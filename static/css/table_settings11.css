@@ -1,0 +1,153 @@
+
+.table-container {
+    max-height: 50vh;
+    overflow-y: auto;
+    position: relative;
+    width: 100%;
+    font-size: 1rem;
+}
+
+.table-container table {
+    width: 100%;
+    margin-bottom: 0;
+    table-layout: fixed;
+}
+
+
+.table-container thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 1;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table-container th,
+.table-container td {
+    text-align: center;
+    padding: 8px;
+    font-size: 0.7rem;
+}
+
+/* تنظیمات پرینت */
+@media print {
+    .table-container {
+        max-height: none !important;
+        overflow-y: visible !important;
+        position: static !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        top: 0 !important; /* اطمینان از شروع از بالا */
+    }
+    .table-container table {
+        table-layout: fixed !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .table-container thead th {
+        position: static !important; /* غیرفعال کردن sticky در پرینت */
+        background: #fff !important; /* جلوگیری از مشکلات پس‌زمینه */
+    }
+    .table-container th,
+    .table-container td {
+        padding: 5px !important;
+        font-size: 0.7rem !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-container {
+        max-height: 200px;
+    }
+    .table-container th,
+    .table-container td {
+        /*font-size: 14px;*/
+        font-size: 0.6rem;
+        padding: 6px;
+    }
+}
+
+/********************************************************************************************************************/
+
+.modal-table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: auto;
+            position: relative;
+        }
+        .modal-table-container table {
+            width: 100%;
+            min-width: 400px;
+        }
+        .modal-table-container th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 1;
+        }
+        .modal-table-container th, .modal-table-container td {
+            text-align: right;
+            white-space: nowrap;
+        }
+        .action-icons, .details-icon {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Space between icons */
+        }
+        .action-icons i, .details-icon i {
+            cursor: pointer;
+            font-size: 1.2rem; /* Adjust icon size */
+        }
+        .details-icon .fa-info-circle {
+            color: #ffc107; /* Yellow for details icon */
+        }
+        .action-icons .fa-check {
+            color: #28a745; /* Green for confirmation icon */
+        }
+        .action-icons .fa-times-circle {
+            color: #dc3545; /* Red for rejection icon */
+        }
+        .action-icons .fa-comment {
+            color: #007bff; /* Blue for comment icon */
+        }
+         .action-icons .fa-trash {
+            color: #6f42c1; /* Purple for scrap icon */
+        }
+        .action-icons i:hover, .details-icon i:hover {
+            opacity: 0.7; /* Slightly fade on hover for effect */
+        }
+        /* Column widths */
+        th:nth-child(1), td:nth-child(1) { /* ردیف */
+            width: 3rem;
+        }
+        th:nth-child(2), td:nth-child(2) { /* سرویس */
+            width: 3rem;
+        }
+        th:nth-child(3), td:nth-child(3) { /* خدمت */
+            width: 3rem;
+        }
+        th:nth-child(4), td:nth-child(4) { /* جزییات */
+            width: 3rem;
+        }
+        th:nth-child(5), td:nth-child(5) { /* لکوموتیو */
+            width:3rem;
+        }
+        th:nth-child(6), td:nth-child(6) { /* دپو */
+            width: 3rem;
+        }
+        th:nth-child(7), td:nth-child(7) { /* تعداد */
+            width: 4rem;
+        }
+        th:nth-child(8), td:nth-child(8) { /* تعداد */
+            width: 7rem;
+        }
+        th:nth-child(9), td:nth-child(9) { /* تعداد */
+            width: 5rem;
+        }
+        th:nth-child(10), td:nth-child(10) { /* تعداد */
+            width: 4rem;
+        }
+
