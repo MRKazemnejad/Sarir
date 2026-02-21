@@ -29,6 +29,8 @@ def dailyDashboard(request):
     today = timezone.now().date()
     yesterday = today - timedelta(days=1)
 
+    request.session['chart_date'] =' '
+
     # -----------------------------
     # داده روز قبل (برای کارت‌ها)
     # -----------------------------
@@ -131,7 +133,10 @@ def dailychart(request):
         '7094','7095','7096','7097','7098','7099','7100'
     ]
 
+
     chart_date = request.session.get('chart_date', ' ')
+
+
 
     if chart_date == ' ':
         target_date = datetime.now().date() - timedelta(days=1)
@@ -142,6 +147,7 @@ def dailychart(request):
     rows = AlvandDailyDashboardChart.objects.filter(
         date_time=target_date
     ).values_list('disel_name','puretonkilo','area_code')
+
 
     data = defaultdict(lambda: [0]*len(loco_list))
 
@@ -176,12 +182,18 @@ def dailychart(request):
     }
 
     regions = []
+
+
+
     for area, values in sorted_data.items():
+
         regions.append({
             "code": area,
             "name": area_names.get(area, str(area)),
             "data": values
         })
+
+
 
     return JsonResponse({
         "loco_name": sorted_loco_list,
@@ -633,6 +645,8 @@ def get_dashboard_data(request):
             "last": build_series(last_dict, j_date.year - 1, j_date.month, days_in_month, "confidence_factor"),
         },
     }
+
+    print(f'list:{bar_data}')
 
     # ترکیب نهایی
     return JsonResponse({
