@@ -646,7 +646,7 @@ def get_dashboard_data(request):
         },
     }
 
-    print(f'list:{bar_data}')
+
 
     # ترکیب نهایی
     return JsonResponse({

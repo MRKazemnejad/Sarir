@@ -674,8 +674,6 @@
                 .then(data => buildBarChart(data));
 
 
-
-
             function buildBarChart(data) {
                 data.regions.forEach(r => {
                     console.log("Region:", r.name, r.code, r.data);
@@ -695,175 +693,186 @@
                         max: data.max_number,
                         labels: {formatter: (v) => formatNumber(v)}
                     },
-                    legend: {position: 'top', fontSize: '11px'}
+                    legend: {
+                        position: 'top',
+                        fontSize: '11px',
+                        fontFamily: 'Vazir,yekan, Tahoma, sans-serif',
+                    }
                 });
                 barChartInstance.render();
             }
 
 
+            fetch("/daily-chartline/")
+                .then(r => r.json())
+                .then(data => {
+                    buildLegend("efficiencyChart", data.last_year, data.year);
+                    buildLegend("availabilityChart", data.last_year, data.year);
+                    buildLegend("confidenceChart", data.last_year, data.year);
+                    buildMainChart(data);
+                    buildSmallCharts(data);
+                });
 
-                fetch("/daily-chartline/")
-                    .then(r => r.json())
-                    .then(data => {
-                        buildLegend("efficiencyChart", data.last_year, data.year);
-                        buildLegend("availabilityChart", data.last_year, data.year);
-                        buildLegend("confidenceChart", data.last_year, data.year);
-                        buildMainChart(data);
-                        buildSmallCharts(data);
-                    });
-
-                function buildMainChart(data) {
-                    buildLegend("mainChart", data.last_year, data.year);
-                    const ctx = document.getElementById("mainChart");
-                    charts["mainChart"] = new Chart(ctx, {
-                        type: 'line',
-                        plugins: [chartAreaBG],
-                        data: {
-                            labels: data.days,
-                            datasets: [
-                                {
-                                    label: 'امسال',
-                                    data: data.pure.this,
-                                    borderColor: '#546e7a',
-                                    borderWidth: 3,
-                                    tension: 0.35,
-                                    pointRadius: 5,
-                                    pointHoverRadius: 7,
-                                    pointBackgroundColor: '#fff',
-                                    pointBorderColor: '#546e7a'
-                                },
-                                {
-                                    label: 'سال قبل',
-                                    data: data.pure.last,
-                                    borderColor: '#f3b21a',
-                                    borderWidth: 2,
-                                    tension: 0.35,
-                                    pointRadius: 5,
-                                    pointHoverRadius: 7,
-                                    pointBackgroundColor: '#fff',
-                                    pointBorderColor: '#f3b21a'
-                                }
-                            ]
+            function buildMainChart(data) {
+                buildLegend("mainChart", data.last_year, data.year);
+                const ctx = document.getElementById("mainChart");
+                charts["mainChart"] = new Chart(ctx, {
+                    type: 'line',
+                    plugins: [chartAreaBG],
+                    data: {
+                        labels: data.days,
+                        datasets: [
+                            {
+                                label: 'امسال',
+                                data: data.pure.this,
+                                borderColor: '#546e7a',
+                                borderWidth: 3,
+                                tension: 0.35,
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: '#546e7a'
+                            },
+                            {
+                                label: 'سال قبل',
+                                data: data.pure.last,
+                                borderColor: '#f3b21a',
+                                borderWidth: 2,
+                                tension: 0.35,
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: '#f3b21a'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        layout: {
+                            padding: {left: 15, right: 15, top: 10, bottom: 5}
                         },
-                        options: {
-                            responsive: true,
-                            layout: {
-                                padding: {left: 15, right: 15, top: 10, bottom: 5}
-                            },
-                            maintainAspectRatio: false,
-                            interaction: {mode: 'index', intersect: false},
-                            plugins: {
-                                legend: {display: false},
-                                tooltip: {
-                                    callbacks: {
-                                        label: (ctx) => ctx.dataset.label + " : " + formatNumber(ctx.parsed.y)
-                                    }
-                                },
-                                chartAreaBG: {color: '#dcefed'}
-                            },
-                            scales: {
-                                x: {
-                                    offset: true,
-                                    ticks: {
-                                        padding: 18,
-                                        maxRotation: 0,
-                                        autoSkip: true,
-                                        maxTicksLimit: 15
-                                    },
-                                    grid: {color: 'rgba(0,0,0,0.05)'}
-                                },
-                                y: {
-                                    grace: '8%',
-                                    ticks: {
-                                        padding: 8,
-                                        callback: (v) => formatNumber(v)
-                                    },
-                                    grid: {color: 'rgba(0,0,0,0.08)'}
+                        maintainAspectRatio: false,
+                        interaction: {mode: 'index', intersect: false},
+                        plugins: {
+                            legend: {display: false},
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => ctx.dataset.label + " : " + formatNumber(ctx.parsed.y)
                                 }
+                            },
+                            chartAreaBG: {color: '#dcefed'}
+                        },
+                        scales: {
+                            x: {
+                                offset: true,
+                                ticks: {
+                                    padding: 18,
+                                    maxRotation: 0,
+                                    autoSkip: true,
+                                    maxTicksLimit: 15
+                                },
+                                grid: {color: 'rgba(0,0,0,0.05)'}
+                            },
+                            y: {
+                                grace: '8%',
+                                ticks: {
+                                    padding: 8,
+                                    callback: (v) => formatNumber(v)
+                                },
+                                grid: {color: 'rgba(0,0,0,0.08)'}
                             }
                         }
-                    });
-                }
+                    }
+                });
+            }
 
-                const charts = {};
+            const charts = {};
 
-                function buildSmallCharts(data) {
-                    buildSmallChart("efficiencyChart", data.eff.this, data.eff.last, data.days);
-                    buildSmallChart("availabilityChart", data.ava.this, data.ava.last, data.days);
-                    buildSmallChart("confidenceChart", data.conf.this, data.conf.last, data.days);
-                }
+            function buildSmallCharts(data) {
+                buildSmallChart("efficiencyChart", data.eff.this, data.eff.last, data.days);
+                buildSmallChart("availabilityChart", data.ava.this, data.ava.last, data.days);
+                buildSmallChart("confidenceChart", data.conf.this, data.conf.last, data.days);
+            }
 
-                function buildSmallChart(id, thisYear, lastYear, days) {
-                    const ctx = document.getElementById(id);
-                    if (!ctx) return;
-                    charts[id] = new Chart(ctx, {
-                        type: 'line',
-                        plugins: [chartAreaBG],
-                        data: {
-                            labels: days,
-                            datasets: [
-                                {
-                                    label: 'امسال',
-                                    data: thisYear,
-                                    borderColor: '#546e7a',
-                                    backgroundColor: '#546e7a',
-                                    borderWidth: 3,
-                                    tension: 0.35,
-                                    pointRadius: 4,
-                                    pointHoverRadius: 6,
-                                    pointBorderWidth: 2,
-                                    pointBackgroundColor: '#ffffff',
-                                    pointBorderColor: '#546e7a'
-                                },
-                                {
-                                    label: 'سال قبل',
-                                    data: lastYear,
-                                    borderColor: '#f3b21a',
-                                    backgroundColor: '#f3b21a',
-                                    borderWidth: 2,
-                                    tension: 0.35,
-                                    pointRadius: 4,
-                                    pointHoverRadius: 6,
-                                    pointBorderWidth: 2,
-                                    pointBackgroundColor: '#ffffff',
-                                    pointBorderColor: '#f3b21a'
-                                }
-                            ]
+            function buildSmallChart(id, thisYear, lastYear, days) {
+                const ctx = document.getElementById(id);
+                if (!ctx) return;
+                charts[id] = new Chart(ctx, {
+                    type: 'line',
+                    plugins: [chartAreaBG],
+                    data: {
+                        labels: days,
+                        datasets: [
+                            {
+                                label: 'امسال',
+                                data: thisYear,
+                                borderColor: '#546e7a',
+                                backgroundColor: '#546e7a',
+                                borderWidth: 3,
+                                tension: 0.35,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointBorderWidth: 2,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#546e7a'
+                            },
+                            {
+                                label: 'سال قبل',
+                                data: lastYear,
+                                borderColor: '#f3b21a',
+                                backgroundColor: '#f3b21a',
+                                borderWidth: 2,
+                                tension: 0.35,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointBorderWidth: 2,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#f3b21a'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            interaction: {
-                                mode: 'index',
-                                intersect: false
+                        plugins: {
+                            legend: {display: false},
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => ctx.dataset.label + " : " + Math.round(ctx.parsed.y) + " %"
+                                }
                             },
-                            plugins: {
-                                legend: {display: false},
-                                tooltip: {
-                                    callbacks: {
-                                        label: (ctx) => ctx.dataset.label + " : " + Math.round(ctx.parsed.y) + " %"
-                                    }
+                            chartAreaBG: {color: '#dcefed'}
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    padding: 20,
+                                    callback: (v, i) => days[i] % 2 === 1 ? days[i] : "",
+                                    maxRotation: 45,
+                                    minRotation: 45
                                 },
-                                chartAreaBG: {color: '#dcefed'}
+                                grid: {color: 'rgba(0,0,0,0.08)'}
                             },
-                            scales: {
-                                x: {
+
+                               y: {
                                     ticks: {
-                                        padding: 20,
-                                        callback: (v, i) => days[i] % 2 === 1 ? days[i] : "",
-                                        maxRotation: 45,
-                                        minRotation: 45
+                                        callback: id === 'efficiencyChart'
+                                            ? (v) => v // فقط عدد، بدون درصد
+                                            : (v) => Math.round(v) + "%" // بقیه نمودارها
                                     },
                                     grid: {color: 'rgba(0,0,0,0.08)'}
-                                },
-                                y: {
-                                    ticks: {callback: (v) => Math.round(v) + "%"},
-                                    grid: {color: 'rgba(0,0,0,0.08)'}
                                 }
-                            }
+
+
                         }
-                    });
-                }
+                    }
+                });
+            }
+
 
 
                 document.querySelectorAll('.toggleAvg').forEach(cb => {
